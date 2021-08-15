@@ -12,8 +12,6 @@ inThisBuild(List(
 
 name := "LightIoC"
 
-ThisBuild / version := "0.1.0"
-
 ThisBuild / scalaVersion := "2.13.5"
 
 ThisBuild / libraryDependencies += "com.google.guava" % "guava" % "21.0"
