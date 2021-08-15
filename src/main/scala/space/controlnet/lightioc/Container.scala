@@ -9,15 +9,36 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
-object Container {
-  val mapping: mutable.Map[Identifier, Entry[_]] = new mutable.HashMap[Identifier, Entry[_]]
-  val singletons: mutable.Map[Identifier, Any] = new mutable.HashMap[Identifier, Any]
+object Container extends StaticRegister with AutoWirer {
+  private val mappings: mutable.Map[Identifier, Entry[_]] = new mutable.HashMap[Identifier, Entry[_]]
+  private val singletons: mutable.Map[Identifier, Any] = new mutable.HashMap[Identifier, Any]
 
-  private def getEntry[T: ClassTag](identifier: Identifier): Entry[T] = mapping.get(identifier) match {
+  /**
+   * Add new registry to Container.
+   */
+  def addMapping(mapping: (Identifier, Entry[_])): Unit = mapping._2.scope match {
+    case Transient => mappings += mapping
+    case Singleton =>
+      singletons.remove(mapping._1)
+      mappings += mapping
+  }
+  /**
+   * Alias of addMapping. Add new registry to Container.
+   */
+  def +=(mapping: (Identifier, Entry[_])): Unit = addMapping(mapping)
+
+  /**
+   * Get registry entry in mapping by identifier.
+   */
+  def getEntry[T: ClassTag](identifier: Identifier): Entry[T] = mappings.get(identifier) match {
     case Some(entry) => entry.asInstanceOf[Entry[T]]
     case None => throw NotRegisteredException
   }
-  private def getEntry[T](implicit tag: ClassTag[T]): Entry[T] = getEntry[T](tag.runtimeClass)
+
+  /**
+   * Get registry entry in mapping by type
+   */
+  def getEntry[T](implicit tag: ClassTag[T]): Entry[T] = getEntry[T](tag.runtimeClass)
 
   private def getSingleton[T: ClassTag](identifier: Identifier): Option[T] =
     singletons.get(identifier).asInstanceOf[Option[T]]
@@ -32,7 +53,7 @@ object Container {
         singletons += entry.id -> instance
         instance
     }
-  }) |> AutoWirer.autowire[T]
+  }) |> autowire[T]
 
   /**
    * Register a specified identity, it can be String or Class[_].
@@ -66,7 +87,7 @@ object Container {
   def resolve[T: ClassTag](identifier: Identifier): T = getEntry[T](identifier) match {
     case entry@ValueEntry(id, scope, value) => getValue[T](entry)
     case FactoryEntry(id, scope, value) => throw ResolveTypeException
-    case ServiceEntry(id, scope, targetId) => resolve(targetId)
+    case ServiceEntry(id, scope, targetId) => resolve[T](targetId)
   }
 
   /**
@@ -81,7 +102,7 @@ object Container {
   /**
    * Checking if the identifier is in Container
    */
-  def has(identifier: Identifier): Boolean = mapping.keySet.contains(identifier)
+  def has(identifier: Identifier): Boolean = mappings.keySet.contains(identifier)
   /**
    * Checking if the type is in Container
    */
@@ -91,8 +112,8 @@ object Container {
    * Initialization for static annotation registration
    */
   def init(packageName: String): Unit = {
-    val staticRegister = new StaticRegister(packageName).withRegistered()
-    register[StaticRegister].toValue(staticRegister).inSingletonScope.done()
+    Container.register[String]("packageName").toValue(packageName).inSingletonScope.done()
+    staticRegister()
   }
 }
 

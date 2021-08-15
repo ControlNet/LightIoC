@@ -8,7 +8,7 @@ class StaticRegistryTest extends FunSpec {
 
   Container.init("space.controlnet.lightioc")
 
-  describe("Static registry test::") {
+  describe("Static registry test ::") {
     it("should registry a top level class by annotation") {
       assert(Container.has[TopLevelClass])
       assert(Container.resolve[TopLevelClass].isInstanceOf[TopLevelClass])

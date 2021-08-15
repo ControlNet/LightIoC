@@ -4,7 +4,7 @@ package space.controlnet.lightioc
 trait Factory[A, B] {
   def apply(xs: A*): B = {
     val obj = call(xs: _*)
-    AutoWirer.autowire[B](obj)
+    Container.autowire[B](obj)
   }
   def call(xs: A*): B
 }

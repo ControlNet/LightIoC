@@ -7,15 +7,16 @@ import space.controlnet.lightioc.annotation.{ Provider, Singleton }
 import java.lang.annotation.Annotation
 import scala.reflect.ClassTag
 
-class StaticRegister(packageName: String) {
+trait StaticRegister {
+  this: Container.type =>
 
   private def loader = Thread.currentThread.getContextClassLoader
   private def classPath = ClassPath.from(loader)
-
   private def appendInnerClasses(cls: Class[_]): List[Class[_]] =
     cls :: cls.getClasses.flatMap(appendInnerClasses).toList
+  private def packageName = Container.resolve[String]("packageName")
 
-  def classes: List[Class[_]] = classPath.getTopLevelClassesRecursive(packageName)
+  private def classes: List[Class[_]] = classPath.getTopLevelClassesRecursive(packageName)
     .toArray.toList.map(_.asInstanceOf[ClassPath.ClassInfo].load)
     .flatMap(appendInnerClasses)
 
@@ -33,18 +34,18 @@ class StaticRegister(packageName: String) {
     }
 
   // Get all Provider annotated classes and fix object class
-  lazy val providers: List[(Class[_], Provider)] = getAnnotatedClassPairs[Provider].map {
+  private lazy val providers: List[(Class[_], Provider)] = getAnnotatedClassPairs[Provider].map {
     case (cls, provider) if provider.isObject && noDollarSignEnd(cls) => (Class.forName(cls.getName + '$'), provider)
     case (cls, provider) => (cls, provider)
   }
-  lazy val singletons: List[(Class[_], Singleton)] = getAnnotatedClassPairs[Singleton].map {
+  private lazy val singletons: List[(Class[_], Singleton)] = getAnnotatedClassPairs[Singleton].map {
     case (cls, singleton) if singleton.isObject && noDollarSignEnd(cls) => (Class.forName(cls.getName + '$'), singleton)
     case (cls, singleton) => (cls, singleton)
   }
 
-  def noDollarSignEnd(cls: Class[_]): Boolean = cls.getName.last != '$'
+  private def noDollarSignEnd(cls: Class[_]): Boolean = cls.getName.last != '$'
 
-  def withRegistered(): StaticRegister = {
+  protected def staticRegister(): Unit = {
     // register to Container
     providers.foreach {
       case (cls, provider) if provider.classId() == classOf[Null] && provider.stringId() == NULL =>
@@ -63,7 +64,5 @@ class StaticRegister(packageName: String) {
       case (cls, provider) if provider.stringId() != NULL =>
         Container.register(provider.stringId()).to(cls).inSingletonScope.done()
     }
-
-    this
   }
 }

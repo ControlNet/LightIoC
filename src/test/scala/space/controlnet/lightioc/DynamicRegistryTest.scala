@@ -10,7 +10,7 @@ import scala.annotation.tailrec
 class DynamicRegistryTest extends FunSpec {
   import DynamicRegistryTest._
 
-  describe("Dynamic registry test::") {
+  describe("Dynamic registry test ::") {
     it("should register and resolve Foo class") {
       Container.register[Foo].toSelf.inTransientScope.done()
       assert(Container.resolve[Foo].getClass == classOf[Foo])
@@ -65,17 +65,6 @@ class DynamicRegistryTest extends FunSpec {
     }
 
     it("should register a factory") {
-      val factory = new (Any *=> Bar) {
-        override def call(xs: Any*): Bar = { (xs match {
-          case Seq(x: Int, y: Int) => (new Bar, x, y)
-          case _: Seq[Any] => throw new Exception
-        }) |> {
-          case (obj: Bar, x: Int, y: Int) =>
-            obj.x = x
-            obj.y = y
-            obj
-        }}
-      }
       Container.register[Bar].toFactory(factory).inSingletonScope.done()
 
       assert(Container.has[Bar])
@@ -96,10 +85,38 @@ class DynamicRegistryTest extends FunSpec {
       assert(Container.resolve[Foo](identifier) != Container.resolve[Foo](identifier))
     }
 
+    it("should be able to update registry in transient scope") {
+      Container.register("abc").toValue(0).inTransientScope.done()
+      Container.register("abc").toValue(1).inTransientScope.done()
+      assert(Container.resolve[Int]("abc") == 1)
+      Container.register("abc").toValue(2).inTransientScope.done()
+      assert(Container.resolve[Int]("abc") == 2)
+    }
+
+    it("should be able to update registry in singleton scope") {
+      Container.register("abc").toValue(0).inSingletonScope.done()
+      Container.register("abc").toValue(1).inSingletonScope.done()
+      assert(Container.resolve[Int]("abc") == 1)
+      Container.register("abc").toValue(2).inSingletonScope.done()
+      assert(Container.resolve[Int]("abc") == 2)
+    }
+
   }
 }
 
 object DynamicRegistryTest {
+  val factory: Any *=> Bar = new (Any *=> Bar) {
+    override def call(xs: Any*): Bar = { (xs match {
+      case Seq(x: Int, y: Int) => (new Bar, x, y)
+      case _: Seq[Any] => throw new Exception
+    }) |> {
+      case (obj: Bar, x: Int, y: Int) =>
+        obj.x = x
+        obj.y = y
+        obj
+    }}
+  }
+
   class Foo {
     val x = 2
   }

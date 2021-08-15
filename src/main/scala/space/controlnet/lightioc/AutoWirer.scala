@@ -5,13 +5,13 @@ import space.controlnet.lightioc.annotation.Helpers.{ NULL, Null }
 
 import java.lang.reflect.Field
 
-object AutoWirer {
+trait AutoWirer {
 
-  def getAutowiredFields(cls: Class[_]): List[(Field, Autowired)] = {
+  private def getAutowiredFields(cls: Class[_]): List[(Field, Autowired)] = {
     cls.getDeclaredFields.toList.map {
       field => (field, field.getAnnotations)
     }.map {
-      case (field, annotations) => (field, field.getAnnotations.find(_.annotationType == classOf[Autowired]))
+      case (field, annotations) => (field, annotations.find(_.annotationType == classOf[Autowired]))
     }.filter {
       _._2.isDefined
     }.map {
@@ -19,7 +19,7 @@ object AutoWirer {
     }
   }
 
-  def wireField[T](obj: T, field: Field, annotation: Autowired): T = {
+  private def wireField[T](obj: T, field: Field, annotation: Autowired): T = {
     field.setAccessible(true)
     val value = annotation match {
       case _ if annotation.stringId() != NULL => Container.resolve[Any](annotation.stringId())

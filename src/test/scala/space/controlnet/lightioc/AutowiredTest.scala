@@ -6,6 +6,7 @@ import space.controlnet.lightioc.annotation.{ Autowired, Provider, Singleton }
 class AutowiredTest extends FunSpec {
 
   import AutowiredTest._
+  Container.init("space.controlnet.lightioc")
 
   val intValue = 100
   val strValue = "Hello IOC"
@@ -15,7 +16,7 @@ class AutowiredTest extends FunSpec {
   Container.register[String]("Foo.str").toValue(strValue).inSingletonScope.done()
   Container.register[Qux].toSelf.inTransientScope.done()
 
-  describe("Autowired test") {
+  describe("Autowired test ::") {
     it("should autowired string identifier fields") {
       assert(Container.resolve[Bar].num == intValue)
       assert(Container.resolve[Baz.type].bool == boolValue)
@@ -59,10 +60,27 @@ object AutowiredTest {
 
   @Provider(isObject = true)
   object Baz {
-    @Autowired var qux: Qux = null
+    @Autowired var qux: Qux = _
     @Autowired(stringId = "Baz.bool") var bool: Boolean = _
   }
 
   class Qux
 
+  class A {
+    @Autowired val i: Int = ???
+    @Autowired val s: String = null
+
+    def this(x: Int, y: Int) {
+      this()
+      point = (x, y)
+    }
+
+    def this(point: (Int, Int)) {
+      this()
+      this.point = point
+    }
+
+    var point: (Int, Int) = null
+
+  }
 }
