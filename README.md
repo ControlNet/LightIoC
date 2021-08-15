@@ -1,6 +1,18 @@
 # LightIoC
 A light-weight Inversion of Control (IoC) tools by Dependency Injection (DI) for Scala.
 
+## Using library
+
+SBT:
+```scala
+libraryDependencies += "space.controlnet" % "lightioc_2.13" % "0.1.0"
+```
+
+Gradle: 
+```groovy
+implementation group: "space.controlnet", name: "lightioc_2.13", version: "0.1.0"
+```
+
 ## Quick start
 
 ### Static registry
@@ -39,6 +51,7 @@ object Main extends App {
 ```scala
 import space.controlnet.lightioc.Container
 import space.controlnet.lightioc.Factory.*=>
+import space.controlnet.lightioc.Util._
 
 class Foo
 class Bar {
@@ -129,3 +142,8 @@ object Baz {
   var x: Int = 0 // should be "var"
 }
 ```
+
+## Acknowledges
+
+- [dylech30th/simple-ioc](https://github.com/dylech30th/simple-ioc): A kotlin based IoC container implementation.
+- [inversify/InversifyJS](https://github.com/inversify/InversifyJS): A powerful and lightweight IoC container for JS apps powered by TypeScript.
