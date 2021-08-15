@@ -39,6 +39,13 @@ class DynamicRegistryTest extends FunSpec {
       assert(foo1 != foo2)
     }
 
+    it("should register a object") {
+      Container.register[Baz.type].toSelf.inSingletonScope.done()
+      assert(Container.has[Baz.type])
+      assert(Container.resolve[Baz.type].isInstanceOf[Baz.type])
+      assert(Container.resolve[Baz.type].x == Baz.x)
+    }
+
     it("should register in singleton scope") {
       Container.register[Foo].toSelf.inSingletonScope.done()
       val foo1 = Container.resolve[Foo]
@@ -124,6 +131,10 @@ object DynamicRegistryTest {
   class Bar {
     var x: Int = _
     var y: Int = _
+  }
+
+  object Baz {
+    val x = 0
   }
 
   val foo = new Foo
