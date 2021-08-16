@@ -1,13 +1,13 @@
 package space.controlnet.lightioc
 
-import org.scalatest.FunSpec
+import org.scalatest.funspec.AnyFunSpec
 import space.controlnet.lightioc.Factory.*=>
 import space.controlnet.lightioc.Util.AnyExt
 import space.controlnet.lightioc.exception.{ NotRegisteredException, ResolveTypeException }
 
 import scala.annotation.tailrec
 
-class DynamicRegistryTest extends FunSpec {
+class DynamicRegistryTest extends AnyFunSpec {
   import DynamicRegistryTest._
 
   describe("Dynamic registry test ::") {

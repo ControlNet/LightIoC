@@ -1,9 +1,9 @@
 package space.controlnet.lightioc
 
-import org.scalatest.FunSpec
+import org.scalatest.funspec.AnyFunSpec
 import space.controlnet.lightioc.annotation.{ Autowired, Provider, Singleton }
 
-class AutowiredTest extends FunSpec {
+class AutowiredTest extends AnyFunSpec {
 
   import AutowiredTest._
   Container.init("space.controlnet.lightioc")

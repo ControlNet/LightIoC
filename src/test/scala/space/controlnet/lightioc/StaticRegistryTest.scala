@@ -1,10 +1,10 @@
 package space.controlnet.lightioc
 
-import org.scalatest.FunSpec
+import org.scalatest.funspec.AnyFunSpec
 import space.controlnet.lightioc.samples.NestedClass.{ InnerClass, InnerObject }
 import space.controlnet.lightioc.samples.{ NamedProviderClass, TopLevelClass, TopLevelObject, TopLevelSingletonClass }
 
-class StaticRegistryTest extends FunSpec {
+class StaticRegistryTest extends AnyFunSpec {
 
   Container.init("space.controlnet.lightioc")
 

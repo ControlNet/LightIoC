@@ -8,6 +8,7 @@ jobs:
     strategy:
       matrix:
         java: ['8', '11', '16']
+        scala: ["2.13.5", "2.12.14", "2.11.12"]
 
     runs-on: ubuntu-20.04
     steps:
@@ -18,5 +19,5 @@ jobs:
         with:
           java-version: "adopt@1.${{ matrix.java }}"
       - name: Build and Test
-        run: sbt -v -Dfile.encoding=UTF-8 +test
+        run: sbt -v -Dfile.encoding=UTF-8 "++${{ matrix.scala }}" "test"
         shell: bash

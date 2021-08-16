@@ -2,10 +2,11 @@
 A light-weight Inversion of Control (IoC) tools by Dependency Injection (DI) for Scala.
 
 ## Using library
+This library is complied for Scala 2.13.x, 2.12.x, 2.11.x, and also tested in Java8, 11, 16. 
 
 SBT:
 ```scala
-libraryDependencies += "space.controlnet" % "lightioc_2.13" % "0.1.0"
+libraryDependencies += "space.controlnet" %% "lightioc" % "0.1.0"
 ```
 
 Gradle: 
