@@ -21,12 +21,10 @@ trait AutoWirer {
 
   private def wireField[T](obj: T, field: Field, annotation: Autowired): T = {
     field.setAccessible(true)
-    val value = annotation match {
-      case _ if annotation.stringId() != NULL => Container.resolve[Any](annotation.stringId())
-      case _ if annotation.stringId() == NULL && annotation.classId() != classOf[Null] =>
-        Container.resolve[Any](annotation.classId())
-      case _ if annotation.stringId() == NULL && annotation.classId() == classOf[Null] =>
-        Container.resolve[Any](field.getType)
+    val value = (annotation.stringId, annotation.classId) match {
+      case (NULL, _: Class[Null]) => Container.resolve[Any](field.getType)
+      case (NULL, _: Class[_]) => Container.resolve[Any](annotation.classId)
+      case (_, _) => Container.resolve[Any](annotation.stringId())
     }
     field.set(obj, value)
     obj
