@@ -1,8 +1,8 @@
 package space.controlnet.lightioc
 
 import com.google.common.reflect.ClassPath
-import space.controlnet.lightioc.annotation.Helpers.{ NULL, Null }
 import space.controlnet.lightioc.annotation.{ Provider, Singleton }
+import space.controlnet.lightioc.annotation.Constants.{ NULL, Null }
 
 import java.lang.annotation.Annotation
 import scala.reflect.ClassTag
@@ -47,22 +47,16 @@ protected trait StaticRegister {
 
   protected def staticRegister(): Unit = {
     // register to Container
-    providers.foreach {
-      case (cls, provider) if provider.classId() == classOf[Null] && provider.stringId() == NULL =>
-        Container.register(cls).toSelf.inTransientScope.done()
-      case (cls, provider) if provider.classId() != classOf[Null] && provider.stringId() == NULL =>
-        Container.register(provider.classId()).to(cls).inTransientScope.done()
-      case (cls, provider) if provider.stringId() != NULL =>
-        Container.register(provider.stringId()).to(cls).inTransientScope.done()
-    }
-
-    singletons.foreach {
-      case (cls, provider) if provider.classId() == classOf[Null] && provider.stringId() == NULL =>
-        Container.register(cls).toSelf.inSingletonScope.done()
-      case (cls, provider) if provider.classId() != classOf[Null] && provider.stringId() == NULL =>
-        Container.register(provider.classId()).to(cls).inSingletonScope.done()
-      case (cls, provider) if provider.stringId() != NULL =>
-        Container.register(provider.stringId()).to(cls).inSingletonScope.done()
+    (providers ::: singletons).map {
+      case (cls, annotation: Provider) => (cls, annotation, annotation.classId, annotation.stringId)
+      case (cls, annotation: Singleton) => (cls, annotation, annotation.classId, annotation.stringId)
+    }.map {
+      case (cls, annotation: Annotation, _: Class[Null], NULL) => (Container.register(cls).toSelf, annotation)
+      case (cls, annotation: Annotation, classId: Class[Any], NULL) => (Container.register(classId).to(cls), annotation)
+      case (cls, annotation: Annotation, _: Class[_], stringId: String) => (Container.register(stringId).to(cls), annotation)
+    }.foreach {
+      case (scopeSetter, _: Provider) => scopeSetter.inTransientScope.done()
+      case (scopeSetter, _: Singleton) => scopeSetter.inSingletonScope.done()
     }
   }
 }
