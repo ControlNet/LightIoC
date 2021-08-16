@@ -1,11 +1,11 @@
 package space.controlnet.lightioc
 
-import org.scalatest.FunSpec
+import org.scalatest.funspec.AnyFunSpec
 import space.controlnet.lightioc.BindingSetter.Self
 import space.controlnet.lightioc.DynamicRegistryTest.factory
 import space.controlnet.lightioc.exception.ResolveTypeException
 
-class OperatorsTest extends FunSpec {
+class OperatorsTest extends AnyFunSpec {
   import OperatorsTest._
   Container.init("space.controlnet.lightioc")
 

@@ -23,4 +23,4 @@ ThisBuild / scalaVersion := "2.13.5"
 ThisBuild / scalacOptions += "-target:jvm-1.8"
 
 ThisBuild / libraryDependencies += "com.google.guava" % "guava" % "21.0"
-ThisBuild / libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % Test
+ThisBuild / libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % Test
