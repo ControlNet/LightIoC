@@ -7,7 +7,7 @@ import space.controlnet.lightioc.annotation.{ Provider, Singleton }
 import java.lang.annotation.Annotation
 import scala.reflect.ClassTag
 
-trait StaticRegister {
+protected trait StaticRegister {
   this: Container.type =>
 
   private def loader = Thread.currentThread.getContextClassLoader

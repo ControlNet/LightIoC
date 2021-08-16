@@ -7,7 +7,7 @@ import space.controlnet.lightioc.exception.RegistryTypeException
 
 import scala.reflect.ClassTag
 
-class BindingSetter[T](identifier: Identifier) {
+protected class BindingSetter[T](identifier: Identifier) {
   import BindingSetter._
 
   /**

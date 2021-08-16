@@ -1,11 +1,11 @@
 package space.controlnet.lightioc
 
 import space.controlnet.lightioc.annotation.Autowired
-import space.controlnet.lightioc.annotation.Helpers.{ NULL, Null }
+import space.controlnet.lightioc.annotation.Constants.{ NULL, Null }
 
 import java.lang.reflect.Field
 
-trait AutoWirer {
+protected trait AutoWirer {
 
   private def getAutowiredFields(cls: Class[_]): List[(Field, Autowired)] = {
     cls.getDeclaredFields.toList.map {
@@ -30,7 +30,7 @@ trait AutoWirer {
     obj
   }
 
-  def autowire[T](obj: T): T = {
+  protected[lightioc] def autowire[T](obj: T): T = {
     getAutowiredFields(obj.getClass).map {
       case (field, autowired) => wireField[T](obj, field, autowired)
     }
