@@ -3,7 +3,7 @@ package space.controlnet.lightioc.enumerate
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
-protected[lightioc] sealed trait Identifier
+protected[lightioc] sealed trait Identifier { val id: Any }
 private[lightioc] case class ClassId[T: ClassTag](id: Class[T])(implicit val tag: ClassTag[T]) extends Identifier
 private[lightioc] case class StringId(id: String) extends Identifier
 

@@ -1,3 +1,3 @@
 package space.controlnet.lightioc.exception
 
-object RegistryTypeException extends Exception
+case class RegistryTypeException(message: String) extends Exception(message)

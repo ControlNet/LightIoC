@@ -32,7 +32,7 @@ object Container extends StaticRegister with AutoWirer {
    */
   def getEntry[T: ClassTag](identifier: Identifier): Entry[T] = mappings.get(identifier) match {
     case Some(entry) => entry.asInstanceOf[Entry[T]]
-    case None => throw NotRegisteredException
+    case None => throw NotRegisteredException(s"Identifier: ${ identifier.id } is not registered.")
   }
 
   /**
@@ -86,7 +86,7 @@ object Container extends StaticRegister with AutoWirer {
   @tailrec
   def resolve[T: ClassTag](identifier: Identifier): T = getEntry[T](identifier) match {
     case entry@ValueEntry(id, scope, value) => getValue[T](entry)
-    case FactoryEntry(id, scope, value) => throw ResolveTypeException
+    case FactoryEntry(id, scope, value) => throw ResolveTypeException("Please use Container.resolveFactory to resolve Factory")
     case ServiceEntry(id, scope, targetId) => resolve[T](targetId)
   }
 
@@ -94,9 +94,9 @@ object Container extends StaticRegister with AutoWirer {
    * Resolve factory by identifier
    */
   def resolveFactory[T: ClassTag](identifier: Identifier): Any *=> T = getEntry[T](identifier) match {
-    case ServiceEntry(id, scope, targetId) => throw ResolveTypeException
+    case ServiceEntry(id, scope, targetId) => throw ResolveTypeException("Please use Container.resolve to resolve the item")
     case FactoryEntry(id, scope, value) => value.asInstanceOf[Any *=> T]
-    case ValueEntry(id, scope, value) => throw ResolveTypeException
+    case ValueEntry(id, scope, value) => throw ResolveTypeException("Please use Container.resolve to resolve the item")
   }
 
   /**

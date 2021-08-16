@@ -68,7 +68,7 @@ protected class BindingSetter[T](identifier: Identifier) {
     case Self => toSelf.inTransientScope.done()
     case constructor : Class[R] => to[R](constructor).inTransientScope.done()
     case value : T => toValue(value).inTransientScope.done()
-    case _ => throw RegistryTypeException
+    case other => throw RegistryTypeException(s"Wrong registry type, get: $other")
   }
 
   /**
@@ -78,7 +78,7 @@ protected class BindingSetter[T](identifier: Identifier) {
     case Self => toSelf.inSingletonScope.done()
     case constructor : Class[R] => to[R](constructor).inSingletonScope.done()
     case value : T => toValue(value).inSingletonScope.done()
-    case _ => throw RegistryTypeException
+    case other => throw RegistryTypeException(s"Wrong registry type, get: $other")
   }
 
   /**

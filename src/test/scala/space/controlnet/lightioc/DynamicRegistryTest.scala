@@ -28,7 +28,7 @@ class DynamicRegistryTest extends AnyFunSpec {
     }
 
     it("should throw Exception when the item is not registered") {
-      assertThrows[NotRegisteredException.type](Container.resolve("Random Things"))
+      assertThrows[NotRegisteredException](Container.resolve("Random Things"))
     }
 
     it("should register in transient scope") {
@@ -75,7 +75,7 @@ class DynamicRegistryTest extends AnyFunSpec {
       Container.register[Bar].toFactory(factory).inSingletonScope.done()
 
       assert(Container.has[Bar])
-      assertThrows[ResolveTypeException.type](Container.resolve[Bar])
+      assertThrows[ResolveTypeException](Container.resolve[Bar])
       assert(Container.resolveFactory[Bar].isInstanceOf[factory.type])
 
       val obj = Container.resolveFactory[Bar].apply(1, 2)
