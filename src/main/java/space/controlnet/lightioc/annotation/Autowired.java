@@ -5,9 +5,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import static space.controlnet.lightioc.annotation.Constants.NULL;
+import static space.controlnet.lightioc.annotation.Constants.Null;
+
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
 public @interface Autowired {
-    String stringId() default Helpers.NULL;
-    Class<?> classId() default Helpers.Null.class;
+    String stringId() default NULL;
+    Class<?> classId() default Null.class;
 }

@@ -1,7 +1,6 @@
 package space.controlnet.lightioc.annotation;
 
-public class Helpers {
+public class Constants {
     public static final String NULL = "";
-
     public static class Null { }
 }

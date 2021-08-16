@@ -30,7 +30,7 @@ class OperatorsTest extends AnyFunSpec {
     it("should support toFactory operator") {
       Container.register[DynamicRegistryTest.Bar] ~> factory
       assert(Container.has[DynamicRegistryTest.Bar])
-      assertThrows[ResolveTypeException.type](Container.resolve[DynamicRegistryTest.Bar])
+      assertThrows[ResolveTypeException](Container.resolve[DynamicRegistryTest.Bar])
       assert(Container.resolveFactory[DynamicRegistryTest.Bar].isInstanceOf[factory.type])
       val obj = Container.resolveFactory[DynamicRegistryTest.Bar].apply(1, 2)
       assert(obj.isInstanceOf[DynamicRegistryTest.Bar] && obj.x == 1 && obj.y == 2)

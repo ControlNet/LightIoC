@@ -12,11 +12,15 @@ inThisBuild(List(
   sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 ))
 
+lazy val scala211 = "2.11.12"
+lazy val scala212 = "2.12.14"
+lazy val scala213 = "2.13.5"
+
 lazy val base = project.in(file("."))
   .settings(sonatypeCredentialHost := "s01.oss.sonatype.org")
   .settings(sonatypeRepository := "https://s01.oss.sonatype.org/service/local")
-  .settings(crossScalaVersions := List("2.13.5", "2.12.14", "2.11.12"))
-  .settings(scalaVersion := "2.13.5")
+  .settings(crossScalaVersions := List(scala213, scala212, scala211))
+  .settings(scalaVersion := scala211)
 
 
 name := "LightIoC"

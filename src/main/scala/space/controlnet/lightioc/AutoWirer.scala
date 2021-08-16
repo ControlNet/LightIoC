@@ -1,11 +1,11 @@
 package space.controlnet.lightioc
 
 import space.controlnet.lightioc.annotation.Autowired
-import space.controlnet.lightioc.annotation.Helpers.{ NULL, Null }
+import space.controlnet.lightioc.annotation.Constants.{ NULL, Null }
 
 import java.lang.reflect.Field
 
-trait AutoWirer {
+protected trait AutoWirer {
 
   private def getAutowiredFields(cls: Class[_]): List[(Field, Autowired)] = {
     cls.getDeclaredFields.toList.map {
@@ -21,18 +21,16 @@ trait AutoWirer {
 
   private def wireField[T](obj: T, field: Field, annotation: Autowired): T = {
     field.setAccessible(true)
-    val value = annotation match {
-      case _ if annotation.stringId() != NULL => Container.resolve[Any](annotation.stringId())
-      case _ if annotation.stringId() == NULL && annotation.classId() != classOf[Null] =>
-        Container.resolve[Any](annotation.classId())
-      case _ if annotation.stringId() == NULL && annotation.classId() == classOf[Null] =>
-        Container.resolve[Any](field.getType)
+    val value = (annotation.stringId, annotation.classId) match {
+      case (NULL, _: Class[Null]) => Container.resolve[Any](field.getType)
+      case (NULL, _: Class[_]) => Container.resolve[Any](annotation.classId)
+      case (_, _) => Container.resolve[Any](annotation.stringId())
     }
     field.set(obj, value)
     obj
   }
 
-  def autowire[T](obj: T): T = {
+  protected[lightioc] def autowire[T](obj: T): T = {
     getAutowiredFields(obj.getClass).map {
       case (field, autowired) => wireField[T](obj, field, autowired)
     }

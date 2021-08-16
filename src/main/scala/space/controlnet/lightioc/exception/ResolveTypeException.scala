@@ -1,3 +1,3 @@
 package space.controlnet.lightioc.exception
 
-object ResolveTypeException extends Exception
+case class ResolveTypeException(message: String) extends Exception(message)

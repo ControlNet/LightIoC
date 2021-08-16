@@ -1,3 +1,3 @@
 package space.controlnet.lightioc.exception
 
-object NotRegisteredException extends Exception
+case class NotRegisteredException(message: String) extends Exception(message)

@@ -1,5 +1,5 @@
 package space.controlnet.lightioc.enumerate
 
-sealed trait Scope
-case object Singleton extends Scope
-case object Transient extends Scope
+protected[lightioc] sealed trait Scope
+private[lightioc] case object Singleton extends Scope
+private[lightioc] case object Transient extends Scope
