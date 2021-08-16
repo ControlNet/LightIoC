@@ -24,9 +24,9 @@ trait AutoWirer {
     val value = annotation match {
       case _ if annotation.stringId() != NULL => Container.resolve[Any](annotation.stringId())
       case _ if annotation.stringId() == NULL && annotation.classId() != classOf[Null] =>
-        Container.resolve(annotation.classId())
+        Container.resolve[Any](annotation.classId())
       case _ if annotation.stringId() == NULL && annotation.classId() == classOf[Null] =>
-        Container.resolve(field.getType)
+        Container.resolve[Any](field.getType)
     }
     field.set(obj, value)
     obj

@@ -15,11 +15,12 @@ inThisBuild(List(
 lazy val base = project.in(file("."))
   .settings(sonatypeCredentialHost := "s01.oss.sonatype.org")
   .settings(sonatypeRepository := "https://s01.oss.sonatype.org/service/local")
+  .settings(crossScalaVersions := List("2.13.5", "2.12.14", "2.11.12"))
+  .settings(scalaVersion := "2.13.5")
 
 
 name := "LightIoC"
 
-ThisBuild / scalaVersion := "2.13.5"
 ThisBuild / scalacOptions += "-target:jvm-1.8"
 
 ThisBuild / libraryDependencies += "com.google.guava" % "guava" % "21.0"
