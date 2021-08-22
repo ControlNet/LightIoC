@@ -9,7 +9,7 @@ import static space.controlnet.lightioc.annotation.Constants.NULL;
 import static space.controlnet.lightioc.annotation.Constants.Null;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target(ElementType.FIELD)
 public @interface Autowired {
     String stringId() default NULL;
     Class<?> classId() default Null.class;

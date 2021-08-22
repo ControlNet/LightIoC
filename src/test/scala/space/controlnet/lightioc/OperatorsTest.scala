@@ -1,9 +1,9 @@
 package space.controlnet.lightioc
 
 import org.scalatest.funspec.AnyFunSpec
-import space.controlnet.lightioc.BindingSetter.Self
+import space.controlnet.lightioc.BindingSetter.{ New, Self }
 import space.controlnet.lightioc.DynamicRegistryTest.factory
-import space.controlnet.lightioc.exception.ResolveTypeException
+import space.controlnet.lightioc.exception.{ RegistryTypeException, ResolveTypeException }
 
 class OperatorsTest extends AnyFunSpec {
   import OperatorsTest._
@@ -22,9 +22,23 @@ class OperatorsTest extends AnyFunSpec {
       assert(Container.resolve[Bar] == Container.resolve[Bar])
     }
 
-    it("should support binding for self") {
+    it("should support binding to self") {
       Container.register[Baz] -> Self
       assert(Container.resolve[Baz].isInstanceOf[Baz])
+    }
+
+    it("should support binding to constructor") {
+      Container.register[Qux] := New(classOf[Foo])
+      Container.register[Quux] -> New(classOf[Qux])
+
+      assert(Container.resolve[Qux].isInstanceOf[Qux])
+      assert(Container.resolve[Qux] == Container.resolve[Qux])
+      assert(Container.resolve[Quux].isInstanceOf[Quux])
+      assert(Container.resolve[Quux] != Container.resolve[Quux])
+    }
+
+    it("should throw exception when use constructor bindings with StringId") {
+      assertThrows[RegistryTypeException](Container.register("Qux") := New(classOf[Foo]))
     }
 
     it("should support toFactory operator") {
@@ -51,4 +65,10 @@ object OperatorsTest {
   class Foo
   class Bar
   class Baz
+  class Qux(val foo: Foo) {
+    val x = 0
+  }
+  class Quux(val x: Int) {
+    def this(qux: Qux) = this(qux.x)
+  }
 }

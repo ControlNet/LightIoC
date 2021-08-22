@@ -71,6 +71,20 @@ class DynamicRegistryTest extends AnyFunSpec {
       assert(Container.resolve[List[Int] => Int](identifier).apply(List.range(0, 10)) == (1 until 10).sum)
     }
 
+    it("should register a main constructor") {
+      Container.register[Qux].toConstructor(classOf[Foo]).inTransientScope.done()
+      val qux = Container.resolve[Qux]
+      assert(qux.isInstanceOf[Qux])
+      assert(qux.foo == Container.resolve[Foo])
+    }
+
+    it("should register an auxiliary constructor") {
+      Container.register[Quux].toConstructor(classOf[Foo]).inTransientScope.done()
+      val quux = Container.resolve[Quux]
+      assert(quux.isInstanceOf[Quux])
+      assert(quux.x == Container.resolve[Foo].x)
+    }
+
     it("should register a factory") {
       Container.register[Bar].toFactory(factory).inSingletonScope.done()
 
@@ -135,6 +149,12 @@ object DynamicRegistryTest {
 
   object Baz {
     val x = 0
+  }
+
+  class Qux(val foo: Foo)
+
+  class Quux(val x: Int) {
+    def this(foo: Foo) = this(foo.x)
   }
 
   val foo = new Foo

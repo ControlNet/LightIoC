@@ -15,6 +15,7 @@ class AutowiredTest extends AnyFunSpec {
   Container.register[Boolean]("Baz.bool").toValue(boolValue).inSingletonScope.done()
   Container.register[String]("Foo.str").toValue(strValue).inSingletonScope.done()
   Container.register[Qux].toSelf.inTransientScope.done()
+  Container.register[Int]("IQuux.num").toValue(intValue).inSingletonScope.done()
 
   describe("Autowired test ::") {
     it("should autowired string identifier fields") {
@@ -37,6 +38,10 @@ class AutowiredTest extends AnyFunSpec {
 
     it("should autowired fields in object") {
       assert(Container.resolve[Baz.type].qux.isInstanceOf[Qux])
+    }
+
+    it("should autowired fields in trail") {
+      assert(Container.resolve[Quux].num == intValue)
     }
   }
 }
@@ -66,21 +71,10 @@ object AutowiredTest {
 
   class Qux
 
-  class A {
-    @Autowired val i: Int = ???
-    @Autowired val s: String = null
-
-    def this(x: Int, y: Int) {
-      this()
-      point = (x, y)
-    }
-
-    def this(point: (Int, Int)) {
-      this()
-      this.point = point
-    }
-
-    var point: (Int, Int) = null
-
+  trait IQuux {
+    @Autowired(stringId = "IQuux.num") val num: Int = 0
   }
+
+  @Provider
+  class Quux extends IQuux
 }
