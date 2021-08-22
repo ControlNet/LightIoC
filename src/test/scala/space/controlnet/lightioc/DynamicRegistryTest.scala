@@ -78,13 +78,12 @@ class DynamicRegistryTest extends AnyFunSpec {
       assert(qux.foo == Container.resolve[Foo])
     }
 
-    it("should register a auxiliary constructor") {
+    it("should register an auxiliary constructor") {
       Container.register[Quux].toConstructor(classOf[Foo]).inTransientScope.done()
       val quux = Container.resolve[Quux]
       assert(quux.isInstanceOf[Quux])
       assert(quux.x == Container.resolve[Foo].x)
     }
-
 
     it("should register a factory") {
       Container.register[Bar].toFactory(factory).inSingletonScope.done()
