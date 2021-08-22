@@ -60,6 +60,7 @@ class Bar {
   var y: Int = _
 }
 object Baz
+class Qux(foo: Foo)
 
 object Main extends App {
   // register Foo to self constructor in Transient scope
@@ -68,6 +69,8 @@ object Main extends App {
   Container.register[Bar].toSelf.inSingletonScope.done()
   // register Baz as well
   Container.register[Baz.type].toSelf.inSingletonScope.done()
+  // register a constructor with parameters
+  Container.register[Qux].toConstructor(classOf[Foo]).inTransientScope.done()
   // register a constant value
   Container.register("A Number").toValue(123).inSingletonScope.done()
   // register a factory
@@ -92,7 +95,7 @@ object Main extends App {
 Of course, if you prefer to use operators...
 ```scala
 import space.controlnet.lightioc.Container
-import space.controlnet.lightioc.BindingSetter.Self
+import space.controlnet.lightioc.BindingSetter.{ New, Self }
 
 object Main extends App {
   // register to value in Transient
@@ -102,7 +105,9 @@ object Main extends App {
   // register to constructor/class in Singleton
   Container.register[Bar] := classOf[Bar]
   // register to self
-  Container.register[Baz] -> Self
+  Container.register[Baz.type] -> Self
+  // register to a constructor with parameters
+  Container.register[Qux] -> New(classOf[Foo])
   // register to factory
   Container.register[Bar] ~> factory
   // register to service
