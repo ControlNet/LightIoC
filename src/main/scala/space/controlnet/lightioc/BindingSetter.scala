@@ -29,6 +29,15 @@ protected class BindingSetter[T](identifier: Identifier) {
   }).asInstanceOf[() => T] |> _to
 
   /**
+   * Register to a constructor with parameters
+   * @param types The types of parameters for the constructor.
+   */
+  def toConstructor(types: Class[_]*): ConstructorScopeSetter[T] = identifier match {
+    case ClassId(id) => new ConstructorScopeSetter(identifier, types)
+    case StringId(id) => throw RegistryTypeException("Constructor bindings only support ClassId.")
+  }
+
+  /**
    * Register to a value.
    */
   def toValue(value: T): ValueScopeSetter[T] = (() => value) |> _to
@@ -66,7 +75,8 @@ protected class BindingSetter[T](identifier: Identifier) {
    */
   def ->[R <: T] : PartialFunction[Any, Container.type] = {
     case Self => toSelf.inTransientScope.done()
-    case constructor : Class[R] => to[R](constructor).inTransientScope.done()
+    case New(types@_*) => toConstructor(types: _*).inTransientScope.done()
+    case cls : Class[R] => to[R](cls).inTransientScope.done()
     case value : T => toValue(value).inTransientScope.done()
     case other => throw RegistryTypeException(s"Wrong registry type, get: $other")
   }
@@ -76,7 +86,8 @@ protected class BindingSetter[T](identifier: Identifier) {
    */
   def :=[R <: T] : PartialFunction[Any, Container.type] = {
     case Self => toSelf.inSingletonScope.done()
-    case constructor : Class[R] => to[R](constructor).inSingletonScope.done()
+    case New(types@_*) => toConstructor(types: _*).inSingletonScope.done()
+    case cls : Class[R] => to[R](cls).inSingletonScope.done()
     case value : T => toValue(value).inSingletonScope.done()
     case other => throw RegistryTypeException(s"Wrong registry type, get: $other")
   }
@@ -97,4 +108,9 @@ object BindingSetter {
    * A object to be used as an identifier in `->` and `:=`, meaning toSelf.
    */
   object Self
+
+  /**
+   * A class to be used to register a constructor with parameters.
+   */
+  case class New(types: Class[_]*)
 }

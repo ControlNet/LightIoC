@@ -2,7 +2,7 @@ package space.controlnet.lightioc
 
 import space.controlnet.lightioc.Factory.*=>
 import space.controlnet.lightioc.Util.AnyExt
-import space.controlnet.lightioc.enumerate.{ Entry, FactoryEntry, Identifier, ServiceEntry, Singleton, Transient, ValueEntry }
+import space.controlnet.lightioc.enumerate.{ ClassId, ConstructorEntry, Entry, FactoryEntry, Identifier, Scope, ServiceEntry, Singleton, Transient, ValueEntry }
 import space.controlnet.lightioc.exception.{ NotRegisteredException, ResolveTypeException }
 
 import scala.annotation.tailrec
@@ -10,13 +10,13 @@ import scala.collection.mutable
 import scala.reflect.ClassTag
 
 object Container extends StaticRegister with AutoWirer {
-  private val mappings: mutable.Map[Identifier, Entry[_]] = new mutable.HashMap[Identifier, Entry[_]]
+  val mappings: mutable.Map[Identifier, Entry[_]] = new mutable.HashMap[Identifier, Entry[_]]
   private val singletons: mutable.Map[Identifier, Any] = new mutable.HashMap[Identifier, Any]
 
   /**
    * Add new registry to Container.
    */
-  def addMapping(mapping: (Identifier, Entry[_])): Unit = mapping._2.scope match {
+  private[lightioc] def addMapping(mapping: (Identifier, Entry[_])): Unit = mapping._2.scope match {
     case Transient => mappings += mapping
     case Singleton =>
       singletons.remove(mapping._1)
@@ -25,12 +25,12 @@ object Container extends StaticRegister with AutoWirer {
   /**
    * Alias of addMapping. Add new registry to Container.
    */
-  def +=(mapping: (Identifier, Entry[_])): Unit = addMapping(mapping)
+  private[lightioc] def +=(mapping: (Identifier, Entry[_])): Unit = addMapping(mapping)
 
   /**
    * Get registry entry in mapping by identifier.
    */
-  def getEntry[T: ClassTag](identifier: Identifier): Entry[T] = mappings.get(identifier) match {
+  private[lightioc] def getEntry[T: ClassTag](identifier: Identifier): Entry[T] = mappings.get(identifier) match {
     case Some(entry) => entry.asInstanceOf[Entry[T]]
     case None => throw NotRegisteredException(s"Identifier: ${ identifier.id } is not registered.")
   }
@@ -38,7 +38,7 @@ object Container extends StaticRegister with AutoWirer {
   /**
    * Get registry entry in mapping by type
    */
-  def getEntry[T](implicit tag: ClassTag[T]): Entry[T] = getEntry[T](tag.runtimeClass)
+  private[lightioc] def getEntry[T](implicit tag: ClassTag[T]): Entry[T] = getEntry[T](tag.runtimeClass)
 
   private def getSingleton[T: ClassTag](identifier: Identifier): Option[T] =
     singletons.get(identifier).asInstanceOf[Option[T]]
@@ -54,6 +54,29 @@ object Container extends StaticRegister with AutoWirer {
         instance
     }
   }) |> autowire[T]
+
+  private def getFromConstructor[T: ClassTag](
+    entry: ConstructorEntry[T], identifier: Option[ClassId[T]], types: Seq[Class[_]])(implicit tag: ClassTag[T]): T = {
+
+     def _getValue: T = {
+      val args: Seq[Object] = types.map((t: Class[_]) => Container.resolve[Object](t: Identifier))
+      identifier match {
+        case Some(ClassId(id)) => id.getConstructor(types: _*).newInstance(args: _*)
+        case None => tag.runtimeClass.getConstructor(types: _*).newInstance(args: _*).asInstanceOf[T]
+      }
+    }
+
+    entry.scope match {
+      case Transient => _getValue
+      case Singleton => getSingleton[T](entry.id)(tag) match {
+        case Some(instance) => instance
+        case None =>
+          val instance = _getValue
+          singletons += entry.id -> instance
+          instance
+      }
+    }
+  }
 
   /**
    * Register a specified identity, it can be String or Class[_].
@@ -86,6 +109,8 @@ object Container extends StaticRegister with AutoWirer {
   @tailrec
   def resolve[T: ClassTag](identifier: Identifier): T = getEntry[T](identifier) match {
     case entry@ValueEntry(id, scope, value) => getValue[T](entry)
+    case entry@ConstructorEntry(id: ClassId[T], scope, types) => getFromConstructor[T](entry, Some(id), types)
+    case entry@ConstructorEntry(id, scope, types) => getFromConstructor[T](entry, None, types)
     case FactoryEntry(id, scope, value) => throw ResolveTypeException("Please use Container.resolveFactory to resolve Factory")
     case ServiceEntry(id, scope, targetId) => resolve[T](targetId)
   }
@@ -94,9 +119,10 @@ object Container extends StaticRegister with AutoWirer {
    * Resolve factory by identifier
    */
   def resolveFactory[T: ClassTag](identifier: Identifier): Any *=> T = getEntry[T](identifier) match {
-    case ServiceEntry(id, scope, targetId) => throw ResolveTypeException("Please use Container.resolve to resolve the item")
-    case FactoryEntry(id, scope, value) => value.asInstanceOf[Any *=> T]
     case ValueEntry(id, scope, value) => throw ResolveTypeException("Please use Container.resolve to resolve the item")
+    case ConstructorEntry(id, scope, types) => throw ResolveTypeException("Please use Container.resolve to resolve the item")
+    case FactoryEntry(id, scope, value) => value.asInstanceOf[Any *=> T]
+    case ServiceEntry(id, scope, targetId) => throw ResolveTypeException("Please use Container.resolve to resolve the item")
   }
 
   /**
