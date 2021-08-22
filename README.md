@@ -6,12 +6,12 @@ This library is complied for Scala 2.13.x, 2.12.x, 2.11.x, and also tested in Ja
 
 SBT:
 ```scala
-libraryDependencies += "space.controlnet" %% "lightioc" % "0.1.2"
+libraryDependencies += "space.controlnet" %% "lightioc" % "0.2.0"
 ```
 
 Gradle: 
 ```groovy
-implementation group: "space.controlnet", name: "lightioc_2.13", version: "0.1.2"
+implementation group: "space.controlnet", name: "lightioc_2.13", version: "0.2.0"
 ```
 
 ## Quick start
