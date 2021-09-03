@@ -5,4 +5,5 @@ object Util {
     def let[R](f: T => R): R = f(any)
     def |>[R](f: T => R): R = let(f)
   }
+  type Factory[T] = Container.type => T
 }

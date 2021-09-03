@@ -1,6 +1,7 @@
 package space.controlnet.lightioc
 
 import org.scalatest.funspec.AnyFunSpec
+import space.controlnet.lightioc.Util.Factory
 import space.controlnet.lightioc.exception.NotRegisteredException
 
 import scala.annotation.tailrec
@@ -127,11 +128,11 @@ object DynamicRegistryTest {
   Container.register[Int]("Bar.x").toValue(barX).inSingletonScope.done()
   Container.register[Int]("Bar.y").toValue(barY).inSingletonScope.done()
 
-  val factory: Container.type => Bar = Container => {
-    val bar = new Bar
-    bar.x = Container.resolve[Int]("Bar.x")
-    bar.y = Container.resolve[Int]("Bar.y")
-    bar
+  val factory: Factory[Bar] = Container => {
+      val bar = new Bar
+      bar.x = Container.resolve[Int]("Bar.x")
+      bar.y = Container.resolve[Int]("Bar.y")
+      bar
   }
 
   class Foo {
