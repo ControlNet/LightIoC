@@ -51,7 +51,6 @@ object Main extends App {
 ### Dynamic registry
 ```scala
 import space.controlnet.lightioc.Container
-import space.controlnet.lightioc.Factory.*=>
 import space.controlnet.lightioc.Util._
 
 class Foo
@@ -74,17 +73,17 @@ object Main extends App {
   // register a constant value
   Container.register("A Number").toValue(123).inSingletonScope.done()
   // register a factory
-  val factory: Any *=> Bar = new (Any *=> Bar) {
-    override def call(xs: Any*): Bar = { (xs match {
-      case Seq(x: Int, y: Int) => (new Bar, x, y)
-      case _: Seq[Any] => throw new Exception
-    }) |> {
-      case (obj: Bar, x: Int, y: Int) =>
-        obj.x = x
-        obj.y = y
-        obj
-    }}
-  }
+//  val factory: Container.type => Bar = new (Any *=> Bar) {
+//    override def call(xs: Any*): Bar = { (xs match {
+//      case Seq(x: Int, y: Int) => (new Bar, x, y)
+//      case _: Seq[Any] => throw new Exception
+//    }) |> {
+//      case (obj: Bar, x: Int, y: Int) =>
+//        obj.x = x
+//        obj.y = y
+//        obj
+//    }}
+//  }
   Container.register[Bar].toFactory(factory).inSingletonScope.done()
   // register to another service (registry)
   Container.register[Foo].toSelf.inTransientScope.done() // target service

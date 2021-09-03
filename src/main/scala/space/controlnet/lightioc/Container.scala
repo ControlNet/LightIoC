@@ -1,6 +1,5 @@
 package space.controlnet.lightioc
 
-import space.controlnet.lightioc.Factory.*=>
 import space.controlnet.lightioc.Util.AnyExt
 import space.controlnet.lightioc.enumerate.{ ClassId, ConstructorEntry, Entry, FactoryEntry, Identifier, Scope, ServiceEntry, Singleton, Transient, ValueEntry }
 import space.controlnet.lightioc.exception.{ NotRegisteredException, ResolveTypeException }
@@ -99,11 +98,6 @@ object Container extends StaticRegister with AutoWirer {
   def resolve[T](implicit tag: ClassTag[T]): T = resolve[T](tag.runtimeClass)
 
   /**
-   * Resolve Factory item from type.
-   */
-  def resolveFactory[T](implicit tag: ClassTag[T]): Any *=> T = resolveFactory[T](tag.runtimeClass)
-
-  /**
    * Resolve item by identifier
    */
   @tailrec
@@ -111,18 +105,8 @@ object Container extends StaticRegister with AutoWirer {
     case entry@ValueEntry(id, scope, value) => getValue[T](entry)
     case entry@ConstructorEntry(id: ClassId[T], scope, types) => getFromConstructor[T](entry, Some(id), types)
     case entry@ConstructorEntry(id, scope, types) => getFromConstructor[T](entry, None, types)
-    case FactoryEntry(id, scope, value) => throw ResolveTypeException("Please use Container.resolveFactory to resolve Factory")
+    case FactoryEntry(id, scope, factory) => factory(this)
     case ServiceEntry(id, scope, targetId) => resolve[T](targetId)
-  }
-
-  /**
-   * Resolve factory by identifier
-   */
-  def resolveFactory[T: ClassTag](identifier: Identifier): Any *=> T = getEntry[T](identifier) match {
-    case ValueEntry(id, scope, value) => throw ResolveTypeException("Please use Container.resolve to resolve the item")
-    case ConstructorEntry(id, scope, types) => throw ResolveTypeException("Please use Container.resolve to resolve the item")
-    case FactoryEntry(id, scope, value) => value.asInstanceOf[Any *=> T]
-    case ServiceEntry(id, scope, targetId) => throw ResolveTypeException("Please use Container.resolve to resolve the item")
   }
 
   /**

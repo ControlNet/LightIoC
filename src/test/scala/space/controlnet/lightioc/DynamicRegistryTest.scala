@@ -1,8 +1,6 @@
 package space.controlnet.lightioc
 
 import org.scalatest.funspec.AnyFunSpec
-import space.controlnet.lightioc.Factory.*=>
-import space.controlnet.lightioc.Util.AnyExt
 import space.controlnet.lightioc.exception.{ NotRegisteredException, ResolveTypeException }
 
 import scala.annotation.tailrec
@@ -86,14 +84,12 @@ class DynamicRegistryTest extends AnyFunSpec {
     }
 
     it("should register a factory") {
-      Container.register[Bar].toFactory(factory).inSingletonScope.done()
-
+      Container.register[Bar].toFactory(factory).inTransientScope.done()
       assert(Container.has[Bar])
-      assertThrows[ResolveTypeException](Container.resolve[Bar])
-      assert(Container.resolveFactory[Bar].isInstanceOf[factory.type])
+      assert(Container.resolve[Bar].isInstanceOf[Bar])
 
-      val obj = Container.resolveFactory[Bar].apply(1, 2)
-      assert(obj.isInstanceOf[Bar] && obj.x == 1 && obj.y == 2)
+      val obj = Container.resolve[Bar]
+      assert(obj.isInstanceOf[Bar] && obj.x == barX && obj.y == barY)
     }
 
     it("should register a service") {
@@ -126,16 +122,16 @@ class DynamicRegistryTest extends AnyFunSpec {
 }
 
 object DynamicRegistryTest {
-  val factory: Any *=> Bar = new (Any *=> Bar) {
-    override def call(xs: Any*): Bar = { (xs match {
-      case Seq(x: Int, y: Int) => (new Bar, x, y)
-      case _: Seq[Any] => throw new Exception
-    }) |> {
-      case (obj: Bar, x: Int, y: Int) =>
-        obj.x = x
-        obj.y = y
-        obj
-    }}
+  val barX = 1
+  val barY = 2
+  Container.register[Int]("Bar.x").toValue(barX).inSingletonScope.done()
+  Container.register[Int]("Bar.y").toValue(barY).inSingletonScope.done()
+
+  val factory: Container.type => Bar = Container => {
+    val bar = new Bar
+    bar.x = Container.resolve[Int]("Bar.x")
+    bar.y = Container.resolve[Int]("Bar.y")
+    bar
   }
 
   class Foo {
