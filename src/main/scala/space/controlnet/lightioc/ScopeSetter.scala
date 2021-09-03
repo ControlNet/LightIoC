@@ -1,5 +1,6 @@
 package space.controlnet.lightioc
 
+import space.controlnet.lightioc.Util.Factory
 import space.controlnet.lightioc.enumerate.{ ConstructorEntry, Entry, FactoryEntry, Identifier, Scope, ServiceEntry, Singleton, Transient, ValueEntry }
 
 private sealed abstract class ScopeSetter[T](val identifier: Identifier)
@@ -34,7 +35,7 @@ private sealed trait ConstructorEntryHasValue[T] extends HasValue {
 }
 
 private sealed trait FactoryEntryHasValue[T] extends HasValue {
-  val value: Container.type => T
+  val value: Factory[T]
 }
 
 private sealed trait EntryBuildable[T] {
@@ -72,7 +73,7 @@ private[lightioc] sealed class ConstructorScopeSetter[T](identifier: Identifier,
   override def inTransientScope: ConstructorScopeSetter[T] with TransientScope with ConstructorEntryBuildable[T] = new ConstructorScopeSetter[T](identifier, value) with TransientScope with ConstructorEntryBuildable[T]
 }
 
-private[lightioc] sealed class FactoryScopeSetter[T](identifier: Identifier, val value: Container.type => T) extends ScopeSetter[T](identifier) with ScopeSettable with FactoryEntryHasValue[T] {
+private[lightioc] sealed class FactoryScopeSetter[T](identifier: Identifier, val value: Factory[T]) extends ScopeSetter[T](identifier) with ScopeSettable with FactoryEntryHasValue[T] {
   override def inSingletonScope: FactoryScopeSetter[T] with SingletonScope with FactoryEntryBuildable[T] = new FactoryScopeSetter[T](identifier, value) with SingletonScope with FactoryEntryBuildable[T]
   override def inTransientScope: FactoryScopeSetter[T] with TransientScope with FactoryEntryBuildable[T] = new FactoryScopeSetter[T](identifier, value) with TransientScope with FactoryEntryBuildable[T]
 }
