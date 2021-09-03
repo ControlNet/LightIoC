@@ -1,7 +1,7 @@
 package space.controlnet.lightioc
 
 import org.scalatest.funspec.AnyFunSpec
-import space.controlnet.lightioc.exception.{ NotRegisteredException, ResolveTypeException }
+import space.controlnet.lightioc.exception.NotRegisteredException
 
 import scala.annotation.tailrec
 

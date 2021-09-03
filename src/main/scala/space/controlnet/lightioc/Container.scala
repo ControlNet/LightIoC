@@ -1,8 +1,8 @@
 package space.controlnet.lightioc
 
 import space.controlnet.lightioc.Util.AnyExt
-import space.controlnet.lightioc.enumerate.{ ClassId, ConstructorEntry, Entry, FactoryEntry, Identifier, Scope, ServiceEntry, Singleton, Transient, ValueEntry }
-import space.controlnet.lightioc.exception.{ NotRegisteredException, ResolveTypeException }
+import space.controlnet.lightioc.enumerate._
+import space.controlnet.lightioc.exception.NotRegisteredException
 
 import scala.annotation.tailrec
 import scala.collection.mutable

@@ -3,7 +3,7 @@ package space.controlnet.lightioc
 import org.scalatest.funspec.AnyFunSpec
 import space.controlnet.lightioc.BindingSetter.{ New, Self }
 import space.controlnet.lightioc.DynamicRegistryTest.factory
-import space.controlnet.lightioc.exception.{ RegistryTypeException, ResolveTypeException }
+import space.controlnet.lightioc.exception.RegistryTypeException
 
 class OperatorsTest extends AnyFunSpec {
   import OperatorsTest._

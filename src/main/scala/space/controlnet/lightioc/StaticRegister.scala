@@ -5,7 +5,6 @@ import space.controlnet.lightioc.annotation.{ Provider, Singleton }
 import space.controlnet.lightioc.annotation.Constants.{ NULL, Null }
 
 import java.lang.annotation.Annotation
-import scala.collection.immutable
 import scala.reflect.ClassTag
 
 protected trait StaticRegister {
