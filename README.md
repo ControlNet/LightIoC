@@ -77,7 +77,7 @@ object Main extends App {
   val barY = 2
   Container.register[Int]("Bar.x").toValue(barX).inSingletonScope.done()
   Container.register[Int]("Bar.y").toValue(barY).inSingletonScope.done()
-  val factory: Container.type => Bar = Container => {
+  val factory: Factory[Bar] = Container => {
     // do anything you want
     val bar = new Bar
     bar.x = Container.resolve[Int]("Bar.x")
