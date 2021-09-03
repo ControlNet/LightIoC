@@ -6,12 +6,12 @@ This library is complied for Scala 2.13.x, 2.12.x, 2.11.x, and also tested in Ja
 
 SBT:
 ```scala
-libraryDependencies += "space.controlnet" %% "lightioc" % "0.2.0"
+libraryDependencies += "space.controlnet" %% "lightioc" % "0.2.1"
 ```
 
 Gradle: 
 ```groovy
-implementation group: "space.controlnet", name: "lightioc_2.13", version: "0.2.0"
+implementation group: "space.controlnet", name: "lightioc_<scala_version>", version: "0.2.1"
 ```
 
 ## Quick start
@@ -51,7 +51,6 @@ object Main extends App {
 ### Dynamic registry
 ```scala
 import space.controlnet.lightioc.Container
-import space.controlnet.lightioc.Factory.*=>
 import space.controlnet.lightioc.Util._
 
 class Foo
@@ -74,18 +73,18 @@ object Main extends App {
   // register a constant value
   Container.register("A Number").toValue(123).inSingletonScope.done()
   // register a factory
-  val factory: Any *=> Bar = new (Any *=> Bar) {
-    override def call(xs: Any*): Bar = { (xs match {
-      case Seq(x: Int, y: Int) => (new Bar, x, y)
-      case _: Seq[Any] => throw new Exception
-    }) |> {
-      case (obj: Bar, x: Int, y: Int) =>
-        obj.x = x
-        obj.y = y
-        obj
-    }}
+  val barX = 1
+  val barY = 2
+  Container.register[Int]("Bar.x").toValue(barX).inSingletonScope.done()
+  Container.register[Int]("Bar.y").toValue(barY).inSingletonScope.done()
+  val factory: Factory[Bar] = Container => {
+    // do anything you want
+    val bar = new Bar
+    bar.x = Container.resolve[Int]("Bar.x")
+    bar.y = Container.resolve[Int]("Bar.y")
+    bar
   }
-  Container.register[Bar].toFactory(factory).inSingletonScope.done()
+  Container.register[Bar].toFactory(factory).inTransientScope.done()
   // register to another service (registry)
   Container.register[Foo].toSelf.inTransientScope.done() // target service
   Container.register("AnotherFoo").toService[Foo].done()
@@ -124,8 +123,8 @@ object Main extends App {
   val foo: Foo = Container.resolve[Foo]
   // resolve by string
   val str: String = Container.resolve[String]("AString")
-  // resolve factory
-  val func = Container.resolveFactory[Bar]
+  // resolve by factory
+  val bar: Bar = Container.resolve[Bar]
 }
 ```
 

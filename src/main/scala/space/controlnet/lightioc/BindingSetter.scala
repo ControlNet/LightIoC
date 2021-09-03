@@ -1,7 +1,6 @@
 package space.controlnet.lightioc
 
-import space.controlnet.lightioc.Factory.*=>
-import space.controlnet.lightioc.Util.AnyExt
+import space.controlnet.lightioc.Util.{ AnyExt, Factory }
 import space.controlnet.lightioc.enumerate.{ ClassId, Identifier, StringId }
 import space.controlnet.lightioc.exception.RegistryTypeException
 
@@ -57,7 +56,7 @@ protected class BindingSetter[T](identifier: Identifier) {
   /**
    * Register to a factory function.
    */
-  def toFactory(function: Any *=> T): FactoryScopeSetter[T] = new FactoryScopeSetter(identifier, function)
+  def toFactory(function: Factory[T]): FactoryScopeSetter[T] = new FactoryScopeSetter(identifier, function)
 
   /**
    * Register to another registration
@@ -95,7 +94,7 @@ protected class BindingSetter[T](identifier: Identifier) {
   /**
    * Register a factory to Container.
    */
-  def ~> (function: Any *=> T): Container.type = new FactoryScopeSetter(identifier, function).inTransientScope.done()
+  def ~> (function: Factory[T]): Container.type = new FactoryScopeSetter(identifier, function).inTransientScope.done()
 
   /**
    * Register to another service.
