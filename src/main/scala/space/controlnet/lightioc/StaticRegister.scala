@@ -14,14 +14,15 @@ protected trait StaticRegister {
 
   private def classPath = ClassPath.from(loader)
 
-  private def appendInnerClasses(cls: Class[_]): List[Class[_]] =
-    cls :: cls.getClasses.flatMap(appendInnerClasses).toList
+  private def appendInnerClasses(cls: Class[_]): List[Class[_]] = cls :: cls.getClasses
+    .filter(subclass => subclass.getPackage.getName.startsWith(packageName) && subclass.getName != cls.getName)
+    .flatMap(appendInnerClasses)
+    .toList
 
   private def packageName = Container.resolve[String]("packageName")
 
   private def classes: List[Class[_]] = classPath.getTopLevelClassesRecursive(packageName)
     .toArray.toList.map(_.asInstanceOf[ClassPath.ClassInfo].load)
-    .filter(subclass => subclass.getPackage.getName.startsWith(packageName))
     .flatMap(appendInnerClasses)
 
   private def getAnnotatedClassPairs[T <: Annotation : ClassTag](implicit tag: ClassTag[T]): List[(Class[_], T)] =
