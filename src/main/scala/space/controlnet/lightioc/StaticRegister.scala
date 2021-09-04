@@ -26,7 +26,7 @@ protected trait StaticRegister {
   private def getAnnotatedClassPairs[T <: Annotation : ClassTag](implicit tag: ClassTag[T]): List[(Class[_], T)] =
     classes.map(cls => (cls, cls.getAnnotations))
       .map {
-        case (cls, annotations) => (cls, annotations.find(_.annotationType == tag.runtimeClass))
+        case (cls, annotations) => (cls, annotations.find(_.annotationType.getName == tag.runtimeClass.getName))
       }
       .filter {
         case (cls, Some(annotation)) => true
