@@ -6,7 +6,7 @@ import space.controlnet.lightioc.exception.NotRegisteredException
 
 import scala.annotation.tailrec
 
-class DynamicRegistryTest extends AnyFunSpec {
+trait DynamicRegistryTest extends AnyFunSpec {
   import DynamicRegistryTest._
 
   describe("Dynamic registry test ::") {

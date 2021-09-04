@@ -3,10 +3,9 @@ package space.controlnet.lightioc
 import org.scalatest.funspec.AnyFunSpec
 import space.controlnet.lightioc.annotation.{ Autowired, Provider, Singleton }
 
-class AutowiredTest extends AnyFunSpec {
+trait AutowiredTest extends AnyFunSpec {
 
   import AutowiredTest._
-  Container.init("space.controlnet.lightioc")
 
   val intValue = 100
   val strValue = "Hello IOC"

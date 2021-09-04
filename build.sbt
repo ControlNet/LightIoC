@@ -21,7 +21,7 @@ lazy val base = project.in(file("."))
   .settings(sonatypeRepository := "https://s01.oss.sonatype.org/service/local")
   .settings(parallelExecution := false)
   .settings(crossScalaVersions := List(scala213, scala212, scala211))
-  .settings(scalaVersion := scala211)
+  .settings(scalaVersion := scala213)
 
 
 name := "LightIoC"

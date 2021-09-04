@@ -2,7 +2,7 @@ package space.controlnet.lightioc
 
 import space.controlnet.lightioc.Util.AnyExt
 import space.controlnet.lightioc.enumerate._
-import space.controlnet.lightioc.exception.NotRegisteredException
+import space.controlnet.lightioc.exception.{ NotImplementedException, NotRegisteredException }
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -15,11 +15,18 @@ object Container extends StaticRegister with AutoWirer {
   /**
    * Add new registry to Container.
    */
-  private[lightioc] def addMapping(mapping: (Identifier, Entry[_])): Unit = mapping._2.scope match {
-    case Transient => mappings += mapping
-    case Singleton =>
-      singletons.remove(mapping._1)
-      mappings += mapping
+  private[lightioc] def addMapping(mapping: (Identifier, Entry[_])): Unit = {
+    val newMapping = (mapping._1, allStringId) match {
+      case (ClassId(id), true) => (StringId(id.getName), mapping._2)
+      case _ => mapping
+    }
+
+    newMapping._2.scope match {
+      case Transient => mappings += newMapping
+      case Singleton =>
+        singletons.remove(newMapping._1)
+        mappings += newMapping
+    }
   }
   /**
    * Alias of addMapping. Add new registry to Container.
@@ -31,7 +38,7 @@ object Container extends StaticRegister with AutoWirer {
    */
   private[lightioc] def getEntry[T: ClassTag](identifier: Identifier): Entry[T] = mappings.get(identifier) match {
     case Some(entry) => entry.asInstanceOf[Entry[T]]
-    case None => throw NotRegisteredException(s"Identifier: ${ identifier.id } is not registered.")
+    case None => throw NotRegisteredException(s"Identifier ${ identifier.getClass.getSimpleName }: {${ identifier.id }} is not registered.")
   }
 
   /**
@@ -55,13 +62,18 @@ object Container extends StaticRegister with AutoWirer {
   }) |> autowire[T]
 
   private def getFromConstructor[T: ClassTag](
-    entry: ConstructorEntry[T], identifier: Option[ClassId[T]], types: Seq[Class[_]])(implicit tag: ClassTag[T]): T = {
+    entry: ConstructorEntry[T], identifier: Option[Identifier], types: Seq[Class[_]])(implicit tag: ClassTag[T]): T = {
 
-     def _getValue: T = {
+    def _getValue: T = {
       val args: Seq[Object] = types.map((t: Class[_]) => Container.resolve[Object](t: Identifier))
+      def _getInstance(cls: Class[_]): T = cls.getConstructor(types: _*).newInstance(args: _*).asInstanceOf[T]
+
       identifier match {
-        case Some(ClassId(id)) => id.getConstructor(types: _*).newInstance(args: _*)
-        case None => tag.runtimeClass.getConstructor(types: _*).newInstance(args: _*).asInstanceOf[T]
+        case Some(ClassId(id)) => _getInstance(id)
+        case Some(StringId(id)) if allStringId => _getInstance(Class.forName(id))
+        case Some(StringId(_)) if !allStringId =>
+          throw NotImplementedException("Constructor binding with for custom string ID is not implemented.")
+        case None if allStringId => _getInstance(tag.runtimeClass)
       }
     }
 
@@ -95,7 +107,11 @@ object Container extends StaticRegister with AutoWirer {
   /**
    * Resolve the item from container by type
    */
-  def resolve[T](implicit tag: ClassTag[T]): T = resolve[T](tag.runtimeClass)
+  def resolve[T](implicit tag: ClassTag[T]): T = resolve[T] {
+    val cls = tag.runtimeClass
+    if (allStringId) StringId(cls.getName)
+    else ClassId(cls)
+  }
 
   /**
    * Resolve item by identifier
@@ -104,10 +120,18 @@ object Container extends StaticRegister with AutoWirer {
   def resolve[T: ClassTag](identifier: Identifier): T = getEntry[T](identifier) match {
     case entry@ValueEntry(id, scope, value) => getValue[T](entry)
     case entry@ConstructorEntry(id: ClassId[T], scope, types) => getFromConstructor[T](entry, Some(id), types)
+    case entry@ConstructorEntry(id: StringId, scope, types) if allStringId => getFromConstructor[T](entry, Some(id), types)
     case entry@ConstructorEntry(id, scope, types) => getFromConstructor[T](entry, None, types)
     case FactoryEntry(id, scope, factory) => factory(this)
     case ServiceEntry(id, scope, targetId) => resolve[T](targetId)
   }
+
+  /**
+   * Resolve item with default value if that item is not registered.
+   */
+  def resolveOrElse[T: ClassTag](identifier: Identifier, default: T): T =
+    if (has(identifier)) resolve[T](identifier)
+    else default
 
   /**
    * Checking if the identifier is in Container
@@ -116,14 +140,25 @@ object Container extends StaticRegister with AutoWirer {
   /**
    * Checking if the type is in Container
    */
-  def has[T: ClassTag](implicit tag: ClassTag[T]): Boolean = has(tag.runtimeClass)
+  def has[T: ClassTag](implicit tag: ClassTag[T]): Boolean =
+    if (!allStringId) has(tag.runtimeClass)
+    else has(tag.runtimeClass.getName)
 
   /**
    * Initialization for static annotation registration
+   * @param packageName The package name of scan range
+   * @param allStringId True then use Class name string as ID instead of Class object. It is for multiple ClassLoader.
    */
-  def init(packageName: String): Unit = {
-    Container.register[String]("packageName").toValue(packageName).inSingletonScope.done()
+  def init(packageName: String, allStringId: Boolean = false): Unit = {
+    Container.register[String]("packageName") := packageName
+    Container.register[Boolean]("allStringId") := allStringId
     staticRegister()
   }
-}
 
+  private[lightioc] def allStringId: Boolean = resolveOrElse("allStringId", false)
+
+  /**
+   * Remove everything in the Container.
+   */
+  def reset(): Unit = mappings.clear()
+}
