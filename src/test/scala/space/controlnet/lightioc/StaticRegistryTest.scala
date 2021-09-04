@@ -2,7 +2,7 @@ package space.controlnet.lightioc
 
 import org.scalatest.funspec.AnyFunSpec
 import space.controlnet.lightioc.samples.NestedClass.{ InnerClass, InnerObject }
-import space.controlnet.lightioc.samples.{ NamedProviderClass, TopLevelClass, TopLevelObject, TopLevelSingletonClass }
+import space.controlnet.lightioc.samples.{ InheritedClass, NamedProviderClass, TopLevelClass, TopLevelObject, TopLevelSingletonClass }
 
 class StaticRegistryTest extends AnyFunSpec {
 
@@ -47,6 +47,12 @@ class StaticRegistryTest extends AnyFunSpec {
       assert(Container.has[TopLevelSingletonClass])
       assert(Container.resolve[TopLevelSingletonClass].isInstanceOf[TopLevelSingletonClass])
       assert(Container.resolve[TopLevelSingletonClass] == Container.resolve[TopLevelSingletonClass])
+    }
+
+    it("should register a class inherited from other packages") {
+      assert(Container.has[InheritedClass])
+      assert(Container.resolve[InheritedClass].isInstanceOf[InheritedClass])
+      assert(Container.resolve[InheritedClass] != Container.resolve[InheritedClass])
     }
   }
 }
