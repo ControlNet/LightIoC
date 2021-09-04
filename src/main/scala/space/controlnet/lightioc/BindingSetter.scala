@@ -48,7 +48,7 @@ private[lightioc] class BindingSetter[T](identifier: Identifier) {
    */
   private def isScalaObject(cls: Class[_]): Boolean = cls.getName.last == '$'
   private def getScalaObject(name: String): T = {
-    val clazz = java.lang.Class.forName(name)
+    val clazz = Container.load(name)
     clazz.getField("MODULE$").get(clazz).asInstanceOf[T]
   }
 

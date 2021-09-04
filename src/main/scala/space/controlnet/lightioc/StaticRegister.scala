@@ -10,8 +10,6 @@ import scala.reflect.ClassTag
 protected trait StaticRegister {
   this: Container.type =>
 
-  private def loader = Thread.currentThread.getContextClassLoader
-
   private def classPath = ClassPath.from(loader)
 
   private def appendInnerClasses(cls: Class[_]): List[Class[_]] = cls :: cls.getClasses
@@ -40,11 +38,11 @@ protected trait StaticRegister {
 
   // Get all Provider annotated classes and fix object class
   private lazy val providers: List[(Class[_], Provider)] = getAnnotatedClassPairs[Provider].map {
-    case (cls, provider) if provider.isObject && noDollarSignEnd(cls) => (Class.forName(cls.getName + '$'), provider)
+    case (cls, provider) if provider.isObject && noDollarSignEnd(cls) => (load(cls.getName + '$'), provider)
     case (cls, provider) => (cls, provider)
   }
   private lazy val singletons: List[(Class[_], Singleton)] = getAnnotatedClassPairs[Singleton].map {
-    case (cls, singleton) if singleton.isObject && noDollarSignEnd(cls) => (Class.forName(cls.getName + '$'), singleton)
+    case (cls, singleton) if singleton.isObject && noDollarSignEnd(cls) => (load(cls.getName + '$'), singleton)
     case (cls, singleton) => (cls, singleton)
   }
 
