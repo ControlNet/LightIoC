@@ -27,7 +27,7 @@ lazy val base = project.in(file("."))
 
 name := "LightIoC"
 
-ThisBuild / scalacOptions ++= Seq("-target:jvm-1.8", "-unchecked", "-deprecation")
+ThisBuild / scalacOptions += "-target:jvm-1.8"
 
 ThisBuild / libraryDependencies += "com.google.guava" % "guava" % "21.0"
 ThisBuild / libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % Test
