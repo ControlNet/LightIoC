@@ -14,7 +14,7 @@ private[lightioc] class BindingSetter[T](identifier: Identifier) {
    */
   def to[R <: T](constructor: Class[R]): ValueScopeSetter[T] = (constructor match {
     case cls: Class[_] if isScalaObject(cls) => () => getScalaObject(cls.getName)
-    case cls: Class[_] => () => constructor.getConstructor().newInstance()
+    case cls: Class[_] => () => Container.load(cls.getName).newInstance().asInstanceOf[R]
   }) |> _to
 
   /**
@@ -22,7 +22,7 @@ private[lightioc] class BindingSetter[T](identifier: Identifier) {
    */
   def toSelf: ValueScopeSetter[T] = (identifier match {
     case ClassId(clazz) if isScalaObject(clazz) => () => getScalaObject(clazz.getName)
-    case ClassId(clazz) => () => clazz.getConstructor().newInstance()
+    case ClassId(clazz) => () => Container.load(clazz.getName).newInstance()
     case StringId(string) => () => string
   }).asInstanceOf[() => T] |> _to
 
