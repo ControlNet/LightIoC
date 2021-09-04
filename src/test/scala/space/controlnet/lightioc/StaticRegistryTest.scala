@@ -8,7 +8,6 @@ trait StaticRegistryTest extends AnyFunSpec {
 
   describe("Static registry test ::") {
     it("should registry a top level class by annotation") {
-      val obj = Container.resolve[TopLevelClass]
       assert(Container.has[TopLevelClass])
       assert(Container.resolve[TopLevelClass].isInstanceOf[TopLevelClass])
       assert(Container.resolve[TopLevelClass] != Container.resolve[TopLevelClass])

@@ -2,14 +2,14 @@ package space.controlnet.lightioc
 
 import space.controlnet.lightioc.Util.AnyExt
 import space.controlnet.lightioc.enumerate._
-import space.controlnet.lightioc.exception.{ NotImplementedException, NotRegisteredException }
+import space.controlnet.lightioc.exception.NotRegisteredException
 
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
 object Container extends StaticRegister with AutoWirer {
-  val mappings: mutable.Map[Identifier, Entry[_]] = new mutable.HashMap[Identifier, Entry[_]]
+  val mappings: mutable.Map[Identifier, Entry[_]] = new mutable.HashMap[Identifier, Entry[_]] // TODO modifier
   private val singletons: mutable.Map[Identifier, Any] = new mutable.HashMap[Identifier, Any]
 
   /**
@@ -61,19 +61,24 @@ object Container extends StaticRegister with AutoWirer {
     }
   }) |> autowire[T]
 
-  private def getFromConstructor[T: ClassTag](
-    entry: ConstructorEntry[T], identifier: Option[Identifier], types: Seq[Class[_]])(implicit tag: ClassTag[T]): T = {
+  private def getFromConstructor[T](entry: ConstructorEntry[T], identifier: Identifier)(implicit tag: ClassTag[T]): T = {
+
+    def types: Seq[Class[_]] = entry.types.map {
+      case StringId(id) => Class.forName(id)
+      case ClassId(cls) => cls
+    }
 
     def _getValue: T = {
-      val args: Seq[Object] = types.map((t: Class[_]) => Container.resolve[Object](t: Identifier))
+      val args: Seq[Object] = entry.types.map(Container.resolve[Object](_))
       def _getInstance(cls: Class[_]): T = cls.getConstructor(types: _*).newInstance(args: _*).asInstanceOf[T]
 
-      identifier match {
-        case Some(ClassId(id)) => _getInstance(id)
-        case Some(StringId(id)) if allStringId => _getInstance(Class.forName(id))
-        case Some(StringId(_)) if !allStringId =>
-          throw NotImplementedException("Constructor binding with for custom string ID is not implemented.")
-        case None if allStringId => _getInstance(tag.runtimeClass)
+      (entry.id, identifier, allStringId) match {
+        // ID is converted from class to string
+        case (ClassId(_), StringId(id), true) => _getInstance(Class.forName(id))
+        // Disable string id conversion and the input is a ClassId
+        case (ClassId(_), ClassId(cls), false) => _getInstance(cls)
+        // Input is a StringId. So use runtime class to infer where class the constructor is
+        case (StringId(_), StringId(_), _) => _getInstance(tag.runtimeClass)
       }
     }
 
@@ -95,14 +100,14 @@ object Container extends StaticRegister with AutoWirer {
    * @param identifier : The identifier for registration.
    * @tparam T : The type of identifier. Class[_] or String.
    */
-  def register[T: ClassTag](identifier: Identifier): BindingSetter[T] = new BindingSetter(identifier)
+  def register[T](identifier: Identifier): BindingSetter[T] = new BindingSetter(identifier)
 
   /**
    * Register for a type
    *
    * @tparam T : The type of registration
    */
-  def register[T: ClassTag](implicit tag: ClassTag[T]): BindingSetter[T] = new BindingSetter(tag.runtimeClass)
+  def register[T](implicit tag: ClassTag[T]): BindingSetter[T] = new BindingSetter(tag.runtimeClass)
 
   /**
    * Resolve the item from container by type
@@ -118,10 +123,8 @@ object Container extends StaticRegister with AutoWirer {
    */
   @tailrec
   def resolve[T: ClassTag](identifier: Identifier): T = getEntry[T](identifier) match {
-    case entry@ValueEntry(id, scope, value) => getValue[T](entry)
-    case entry@ConstructorEntry(id: ClassId[T], scope, types) => getFromConstructor[T](entry, Some(id), types)
-    case entry@ConstructorEntry(id: StringId, scope, types) if allStringId => getFromConstructor[T](entry, Some(id), types)
-    case entry@ConstructorEntry(id, scope, types) => getFromConstructor[T](entry, None, types)
+    case entry: ValueEntry[T] => getValue[T](entry)
+    case entry: ConstructorEntry[T] => getFromConstructor[T](entry, identifier)
     case FactoryEntry(id, scope, factory) => factory(this)
     case ServiceEntry(id, scope, targetId) => resolve[T](targetId)
   }
@@ -156,6 +159,11 @@ object Container extends StaticRegister with AutoWirer {
   }
 
   private[lightioc] def allStringId: Boolean = resolveOrElse("allStringId", false)
+
+  private[lightioc] def checkAndConvert(identifier: Identifier): Identifier = (identifier, allStringId) match {
+    case (ClassId(id), true) => StringId(id.getName)
+    case _ => identifier
+  }
 
   /**
    * Remove everything in the Container.

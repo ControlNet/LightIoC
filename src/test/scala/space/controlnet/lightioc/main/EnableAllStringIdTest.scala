@@ -1,11 +1,15 @@
 package space.controlnet.lightioc.main
 
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpec
-import space.controlnet.lightioc.{ AutowiredTest, DynamicRegistryTest, OperatorsTest, StaticRegistryTest }
-import space.controlnet.lightioc.conf.EnableAllStringIdConf
+import space.controlnet.lightioc.conf.EnableAllString
+import space.controlnet.lightioc.{ AutowiredTest, Container, DynamicRegistryTest, OperatorsTest, StaticRegistryTest }
 
-class EnableAllStringIdTest extends AnyFunSpec with EnableAllStringIdConf
+class EnableAllStringIdTest extends AnyFunSpec with BeforeAndAfterAll with EnableAllString
   with DynamicRegistryTest
   with StaticRegistryTest
   with AutowiredTest
-  with OperatorsTest
+  with OperatorsTest {
+
+  override protected def afterAll(): Unit = Container.reset()
+}

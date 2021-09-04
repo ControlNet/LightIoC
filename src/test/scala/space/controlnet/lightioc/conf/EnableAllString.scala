@@ -2,6 +2,6 @@ package space.controlnet.lightioc.conf
 
 import space.controlnet.lightioc.Container
 
-trait EnableAllStringIdConf {
+trait EnableAllString {
   Container.init("space.controlnet.lightioc", allStringId = true)
 }

@@ -6,9 +6,8 @@ import space.controlnet.lightioc.exception.RegistryTypeException
 
 import scala.reflect.ClassTag
 
-protected class BindingSetter[T](identifier: Identifier) {
+private[lightioc] class BindingSetter[T](identifier: Identifier) {
   import BindingSetter._
-
   /**
    * Only support class with no-parameter constructor yet
    * Register to another class implementation
@@ -31,8 +30,8 @@ protected class BindingSetter[T](identifier: Identifier) {
    * Register to a constructor with parameters
    * @param types The types of parameters for the constructor.
    */
-  def toConstructor(types: Class[_]*): ConstructorScopeSetter[T] = identifier match {
-    case ClassId(id) => new ConstructorScopeSetter(identifier, types)
+  def toConstructor(types: Identifier*): ConstructorScopeSetter[T] = identifier match {
+    case ClassId(id) => new ConstructorScopeSetter(identifier, types.map(Container.checkAndConvert))
     case StringId(id) => throw RegistryTypeException("Constructor bindings only support ClassId.")
   }
 
@@ -62,12 +61,11 @@ protected class BindingSetter[T](identifier: Identifier) {
    * Register to another registration
    */
   def toService[R](targetIdentifier: Identifier): ServiceScopeSetter[T, R] =
-    new ServiceScopeSetter[T, R](identifier, targetIdentifier)
+    new ServiceScopeSetter[T, R](identifier, Container.checkAndConvert(targetIdentifier))
   /**
    * Register to another registration by type
    */
-  def toService[R: ClassTag](implicit tag: ClassTag[R]): ServiceScopeSetter[T, R] =
-    new ServiceScopeSetter[T, R](identifier, tag.runtimeClass)
+  def toService[R](implicit tag: ClassTag[R]): ServiceScopeSetter[T, R] = toService[R](tag.runtimeClass)
 
   /**
    *  Register a constructor or a value to Container in Transient scope
@@ -111,5 +109,5 @@ object BindingSetter {
   /**
    * A class to be used to register a constructor with parameters.
    */
-  case class New(types: Class[_]*)
+  case class New(types: Identifier*)
 }

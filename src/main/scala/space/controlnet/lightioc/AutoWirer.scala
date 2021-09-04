@@ -2,10 +2,12 @@ package space.controlnet.lightioc
 
 import space.controlnet.lightioc.annotation.Autowired
 import space.controlnet.lightioc.annotation.Constants.{ NULL, Null }
+import space.controlnet.lightioc.enumerate.Identifier
 
 import java.lang.reflect.Field
 
 protected trait AutoWirer {
+  this: Container.type =>
 
   private def getAutowiredFields(cls: Class[_]): List[(Field, Autowired)] = {
     cls.getDeclaredFields.toList.map {
@@ -21,12 +23,14 @@ protected trait AutoWirer {
 
   private def wireField[T](obj: T, field: Field, annotation: Autowired): T = {
     field.setAccessible(true)
-    val value = (annotation.stringId, annotation.classId) match {
-      case (NULL, _: Class[Null]) => Container.resolve[Any](field.getType)
-      case (NULL, _: Class[_]) => Container.resolve[Any](annotation.classId)
-      case (_, _) => Container.resolve[Any](annotation.stringId())
+    val identifier: Identifier = (annotation.stringId, annotation.classId, allStringId) match {
+      case (NULL, _: Class[Null], false) => field.getType
+      case (NULL, _: Class[Null], true) => field.getType.getName
+      case (NULL, _: Class[_], false) => annotation.classId
+      case (NULL, _: Class[_], true) => annotation.classId.getName
+      case (_, _, _) => annotation.stringId
     }
-    field.set(obj, value)
+    field.set(obj, resolve(identifier))
     obj
   }
 

@@ -2,6 +2,6 @@ package space.controlnet.lightioc.conf
 
 import space.controlnet.lightioc.Container
 
-trait DisableAllStringIdConf {
+trait DisableAllString {
   Container.init("space.controlnet.lightioc")
 }

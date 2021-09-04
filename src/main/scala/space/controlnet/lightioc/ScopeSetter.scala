@@ -31,7 +31,7 @@ private sealed trait ValueEntryHasValue[T] extends HasValue {
 }
 
 private sealed trait ConstructorEntryHasValue[T] extends HasValue {
-  val value: Seq[Class[_]]
+  val value: Seq[Identifier]
 }
 
 private sealed trait FactoryEntryHasValue[T] extends HasValue {
@@ -68,7 +68,7 @@ private[lightioc] sealed class ValueScopeSetter[T](identifier: Identifier, val v
   override def inTransientScope: ValueScopeSetter[T] with TransientScope with ValueEntryBuildable[T] = new ValueScopeSetter[T](identifier, value) with TransientScope with ValueEntryBuildable[T]
 }
 
-private[lightioc] sealed class ConstructorScopeSetter[T](identifier: Identifier, val value: Seq[Class[_]]) extends ScopeSetter[T](identifier) with ScopeSettable with ConstructorEntryHasValue[T] {
+private[lightioc] sealed class ConstructorScopeSetter[T](identifier: Identifier, val value: Seq[Identifier]) extends ScopeSetter[T](identifier) with ScopeSettable with ConstructorEntryHasValue[T] {
   override def inSingletonScope: ConstructorScopeSetter[T] with SingletonScope with ConstructorEntryBuildable[T] = new ConstructorScopeSetter[T](identifier, value) with SingletonScope with ConstructorEntryBuildable[T]
   override def inTransientScope: ConstructorScopeSetter[T] with TransientScope with ConstructorEntryBuildable[T] = new ConstructorScopeSetter[T](identifier, value) with TransientScope with ConstructorEntryBuildable[T]
 }
