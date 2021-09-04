@@ -4,9 +4,7 @@ import org.scalatest.funspec.AnyFunSpec
 import space.controlnet.lightioc.samples.NestedClass.{ InnerClass, InnerObject }
 import space.controlnet.lightioc.samples.{ InheritedClass, NamedProviderClass, TopLevelClass, TopLevelObject, TopLevelSingletonClass }
 
-class StaticRegistryTest extends AnyFunSpec {
-
-  Container.init("space.controlnet.lightioc")
+trait StaticRegistryTest extends AnyFunSpec {
 
   describe("Static registry test ::") {
     it("should registry a top level class by annotation") {

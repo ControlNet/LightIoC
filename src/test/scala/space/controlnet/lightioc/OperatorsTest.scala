@@ -5,9 +5,8 @@ import space.controlnet.lightioc.BindingSetter.{ New, Self }
 import space.controlnet.lightioc.DynamicRegistryTest.factory
 import space.controlnet.lightioc.exception.RegistryTypeException
 
-class OperatorsTest extends AnyFunSpec {
+trait OperatorsTest extends AnyFunSpec {
   import OperatorsTest._
-  Container.init("space.controlnet.lightioc")
 
   describe("Binding setter operators") {
     it("should support binding for value and class") {

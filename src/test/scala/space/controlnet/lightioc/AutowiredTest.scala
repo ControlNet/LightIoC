@@ -3,27 +3,21 @@ package space.controlnet.lightioc
 import org.scalatest.funspec.AnyFunSpec
 import space.controlnet.lightioc.annotation.{ Autowired, Provider, Singleton }
 
-class AutowiredTest extends AnyFunSpec {
-
+trait AutowiredTest extends AnyFunSpec {
   import AutowiredTest._
-  Container.init("space.controlnet.lightioc")
-
-  val intValue = 100
-  val strValue = "Hello IOC"
-  val boolValue = true
-  Container.register[Int]("Bar.num").toValue(intValue).inSingletonScope.done()
-  Container.register[Boolean]("Baz.bool").toValue(boolValue).inSingletonScope.done()
-  Container.register[String]("Foo.str").toValue(strValue).inSingletonScope.done()
-  Container.register[Qux].toSelf.inTransientScope.done()
-  Container.register[Int]("IQuux.num").toValue(intValue).inSingletonScope.done()
 
   describe("Autowired test ::") {
+
     it("should autowired string identifier fields") {
+      Container.register[Int]("Bar.num").toValue(intValue).inSingletonScope.done()
+      Container.register[Boolean]("Baz.bool").toValue(boolValue).inSingletonScope.done()
+      Container.register[Qux].toSelf.inTransientScope.done()
       assert(Container.resolve[Bar].num == intValue)
       assert(Container.resolve[Baz.type].bool == boolValue)
     }
 
     it("should autowired fields in class") {
+      Container.register[String]("Foo.str").toValue(strValue).inSingletonScope.done()
       assert(Container.resolve[Foo].bar.isInstanceOf[Bar])
       assert(Container.resolve[Foo].baz.isInstanceOf[Baz.type])
       assert(Container.resolve[Foo].baz == Baz)
@@ -41,6 +35,7 @@ class AutowiredTest extends AnyFunSpec {
     }
 
     it("should autowired fields in trail") {
+      Container.register[Int]("IQuux.num").toValue(intValue).inSingletonScope.done()
       assert(Container.resolve[Quux].num == intValue)
     }
   }
@@ -48,6 +43,10 @@ class AutowiredTest extends AnyFunSpec {
 
 
 object AutowiredTest {
+
+  private[lightioc] val intValue = 100
+  private[lightioc] val strValue = "Hello IOC"
+  private[lightioc] val boolValue = true
 
   @Provider
   class Foo {

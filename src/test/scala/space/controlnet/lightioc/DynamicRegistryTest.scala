@@ -6,10 +6,11 @@ import space.controlnet.lightioc.exception.NotRegisteredException
 
 import scala.annotation.tailrec
 
-class DynamicRegistryTest extends AnyFunSpec {
+trait DynamicRegistryTest extends AnyFunSpec {
   import DynamicRegistryTest._
 
   describe("Dynamic registry test ::") {
+
     it("should register and resolve Foo class") {
       Container.register[Foo].toSelf.inTransientScope.done()
       assert(Container.resolve[Foo].getClass == classOf[Foo])
@@ -85,6 +86,9 @@ class DynamicRegistryTest extends AnyFunSpec {
     }
 
     it("should register a factory") {
+      Container.register[Int]("Bar.x").toValue(barX).inSingletonScope.done()
+      Container.register[Int]("Bar.y").toValue(barY).inSingletonScope.done()
+
       Container.register[Bar].toFactory(factory).inTransientScope.done()
       assert(Container.has[Bar])
       assert(Container.resolve[Bar].isInstanceOf[Bar])
@@ -123,16 +127,14 @@ class DynamicRegistryTest extends AnyFunSpec {
 }
 
 object DynamicRegistryTest {
-  val barX = 1
-  val barY = 2
-  Container.register[Int]("Bar.x").toValue(barX).inSingletonScope.done()
-  Container.register[Int]("Bar.y").toValue(barY).inSingletonScope.done()
+  private[lightioc] val barX = 1
+  private[lightioc] val barY = 2
 
-  val factory: Factory[Bar] = Container => {
-      val bar = new Bar
-      bar.x = Container.resolve[Int]("Bar.x")
-      bar.y = Container.resolve[Int]("Bar.y")
-      bar
+  private[lightioc] val factory: Factory[Bar] = Container => {
+    val bar = new Bar
+    bar.x = Container.resolve[Int]("Bar.x")
+    bar.y = Container.resolve[Int]("Bar.y")
+    bar
   }
 
   class Foo {
