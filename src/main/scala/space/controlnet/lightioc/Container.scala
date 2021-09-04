@@ -64,7 +64,7 @@ object Container extends StaticRegister with AutoWirer {
   private def getFromConstructor[T](entry: ConstructorEntry[T], identifier: Identifier)(implicit tag: ClassTag[T]): T = {
 
     def types: Seq[Class[_]] = entry.types.map {
-      case StringId(id) => Class.forName(id)
+      case StringId(id) => load(id)
       case ClassId(cls) => cls
     }
 
@@ -74,7 +74,7 @@ object Container extends StaticRegister with AutoWirer {
 
       (entry.id, identifier, allStringId) match {
         // ID is converted from class to string
-        case (ClassId(_), StringId(id), true) => _getInstance(Class.forName(id))
+        case (ClassId(_), StringId(id), true) => _getInstance(load(id))
         // Disable string id conversion and the input is a ClassId
         case (ClassId(_), ClassId(cls), false) => _getInstance(cls)
         // Input is a StringId. So use runtime class to infer where class the constructor is
@@ -151,10 +151,12 @@ object Container extends StaticRegister with AutoWirer {
    * Initialization for static annotation registration
    * @param packageName The package name of scan range
    * @param allStringId True then use Class name string as ID instead of Class object. It is for multiple ClassLoader.
+   * @param classLoader The class loader used in this Container
    */
-  def init(packageName: String, allStringId: Boolean = false): Unit = {
+  def init(packageName: String, allStringId: Boolean = false, classLoader: => ClassLoader = Thread.currentThread.getContextClassLoader): Unit = {
     Container.register[String]("packageName") := packageName
     Container.register[Boolean]("allStringId") := allStringId
+    Container.register[ClassLoader]("classLoader") := classLoader
     staticRegister()
   }
 
@@ -164,6 +166,9 @@ object Container extends StaticRegister with AutoWirer {
     case (ClassId(id), true) => StringId(id.getName)
     case _ => identifier
   }
+
+  protected def loader: ClassLoader = resolveOrElse("classLoader", Thread.currentThread.getContextClassLoader)
+  protected[lightioc] def load(className: String): Class[_] = Class.forName(className, true, loader)
 
   /**
    * Remove everything in the Container.
