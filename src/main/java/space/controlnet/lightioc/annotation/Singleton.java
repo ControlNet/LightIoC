@@ -9,7 +9,10 @@ import static space.controlnet.lightioc.annotation.Constants.NULL;
 import static space.controlnet.lightioc.annotation.Constants.Null;
 
 /**
- * Cannot work on companion object
+ * This decorator is used to annotate the classes and scala objects to be scanned by LightIoC Container in
+ * singleton scope. It should be used with `Container.init`.
+ *
+ * Note: Cannot work on companion object, and cannot work on non-public inner class.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

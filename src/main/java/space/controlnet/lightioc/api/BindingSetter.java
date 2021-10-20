@@ -31,7 +31,7 @@ public class BindingSetter<T> {
 
     public ConstructorScopeSetter<T> toConstructor(Class<?>... types) {
         ArrayBuffer<Identifier> identifiers = new ArrayBuffer<>();
-        Arrays.stream(types).forEach(type -> identifiers.addOne(new ClassId<>(type, ClassTag.apply(type))));
+        Arrays.stream(types).forEach(type -> identifiers.$plus$eq(new ClassId<>(type, ClassTag.apply(type))));
         return bindingSetter.toConstructor(identifiers.toSeq());
     }
 
