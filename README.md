@@ -14,7 +14,7 @@ Gradle:
 implementation group: "space.controlnet", name: "lightioc_<scala_version>", version: "0.3.0"
 ```
 
-A Java-friendly API compiled by Scala 2.13 and 2.12 is also provided. See [Java-Friendly-API](#java-friendly-api).
+A Java-friendly API compiled by Scala 2.13 and 2.12 is also provided. See [Java-Friendly API](#java-friendly-api).
 Gradle:
 ```groovy
 implementation group: "space.controlnet", name: "lightioc-api_2.13", version: "0.3.0"
@@ -172,7 +172,7 @@ class A {
 }
 
 fun main() {
-    Container.init("space.controlnet")
+    Container.init("<package name>")
     val a = Container.resolve(A::class.java)
     println(a.x)
 }
