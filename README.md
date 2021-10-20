@@ -6,12 +6,18 @@ This library is complied for Scala 2.13.x, 2.12.x, 2.11.x, and also tested in Ja
 
 SBT:
 ```scala
-libraryDependencies += "space.controlnet" %% "lightioc" % "0.2.4"
+libraryDependencies += "space.controlnet" %% "lightioc" % "0.3.0"
 ```
 
 Gradle: 
 ```groovy
-implementation group: "space.controlnet", name: "lightioc_<scala_version>", version: "0.2.4"
+implementation group: "space.controlnet", name: "lightioc_<scala_version>", version: "0.3.0"
+```
+
+A Java-friendly API compiled by Scala 2.13 and 2.12 is also provided. See [Java-Friendly-API](#java-friendly-api).
+Gradle:
+```groovy
+implementation group: "space.controlnet", name: "lightioc-api_2.13", version: "0.3.0"
 ```
 
 ## Quick start
@@ -63,20 +69,20 @@ class Qux(foo: Foo)
 
 object Main extends App {
   // register Foo to self constructor in Transient scope
-  Container.register[Foo].toSelf.inTransientScope.done()
+  Container.register[Foo].toSelf.inTransientScope()
   // register Bar to self constructor in Singleton scope
-  Container.register[Bar].toSelf.inSingletonScope.done()
+  Container.register[Bar].toSelf.inSingletonScope()
   // register Baz as well
-  Container.register[Baz.type].toSelf.inSingletonScope.done()
+  Container.register[Baz.type].toSelf.inSingletonScope()
   // register a constructor with parameters
-  Container.register[Qux].toConstructor(classOf[Foo]).inTransientScope.done()
+  Container.register[Qux].toConstructor(classOf[Foo]).inTransientScope()
   // register a constant value
-  Container.register("A Number").toValue(123).inSingletonScope.done()
+  Container.register("A Number").toValue(123).inSingletonScope()
   // register a factory
   val barX = 1
   val barY = 2
-  Container.register[Int]("Bar.x").toValue(barX).inSingletonScope.done()
-  Container.register[Int]("Bar.y").toValue(barY).inSingletonScope.done()
+  Container.register[Int]("Bar.x").toValue(barX).inSingletonScope()
+  Container.register[Int]("Bar.y").toValue(barY).inSingletonScope()
   val factory: Factory[Bar] = Container => {
     // do anything you want
     val bar = new Bar
@@ -84,10 +90,10 @@ object Main extends App {
     bar.y = Container.resolve[Int]("Bar.y")
     bar
   }
-  Container.register[Bar].toFactory(factory).inTransientScope.done()
+  Container.register[Bar].toFactory(factory).inTransientScope()
   // register to another service (registry)
-  Container.register[Foo].toSelf.inTransientScope.done() // target service
-  Container.register("AnotherFoo").toService[Foo].done()
+  Container.register[Foo].toSelf.inTransientScope() // target service
+  Container.register("AnotherFoo").toService[Foo]
 }
 ```
 
@@ -147,6 +153,31 @@ object Baz {
   var x: Int = 0 // should be "var"
 }
 ```
+
+## Java-Friendly API
+
+Gradle:
+```groovy
+implementation group: "space.controlnet", name: "lightioc-api_2.13", version: "0.3.0"
+```
+
+### Kotlin Example
+```kotlin
+import space.controlnet.lightioc.annotation.Singleton
+import space.controlnet.lightioc.api.Container
+
+@Singleton
+class A {
+    val x: Int = 100
+}
+
+fun main() {
+    Container.init("space.controlnet")
+    val a = Container.resolve(A::class.java)
+    println(a.x)
+}
+```
+
 
 ## Acknowledges
 
