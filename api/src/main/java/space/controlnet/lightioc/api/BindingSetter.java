@@ -5,7 +5,6 @@ import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
 import space.controlnet.lightioc.ConstructorScopeSetter;
 import space.controlnet.lightioc.FactoryScopeSetter;
-import space.controlnet.lightioc.ServiceScopeSetter;
 import space.controlnet.lightioc.ValueScopeSetter;
 import space.controlnet.lightioc.enumerate.ClassId;
 import space.controlnet.lightioc.enumerate.Identifier;
