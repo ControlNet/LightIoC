@@ -19,11 +19,9 @@ jobs:
         uses: olafurpg/setup-scala@v10
         with:
           java-version: "adopt@1.${{ matrix.java }}"
-      - name: Remove java api for scala2.11
-        if: ${{ matrix.scala == '2.11.12' }}
-        run: |
-          rm -R src/main/java/space/controlnet/lightioc/api
-          rm -R src/test/java
       - name: Build and Test
-        run: sbt -v -Dfile.encoding=UTF-8 "++${{ matrix.scala }}" "test"
+        run: sbt -v -Dfile.encoding=UTF-8 "++${{ matrix.scala }} test"
         shell: bash
+      - name: Test API
+        if: ${{ matrix.scala != '2.11.12' }}
+        run: sbt -v -Dfile.encoding=UTF-8 "++${{ matrix.scala }}; project api; test"
