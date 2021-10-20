@@ -12,18 +12,18 @@ trait DynamicRegistryTest extends AnyFunSpec {
   describe("Dynamic registry test ::") {
 
     it("should register and resolve Foo class") {
-      Container.register[Foo].toSelf.inTransientScope.done()
+      Container.register[Foo].toSelf.inTransientScope()
       assert(Container.resolve[Foo].getClass == classOf[Foo])
       assert(Container.resolve[Foo].x == foo.x)
     }
 
     it("should register and resolve string abc with String identifier") {
-      Container.register("aString").toValue(aString).inTransientScope.done()
+      Container.register("aString").toValue(aString).inTransientScope()
       assert(Container.resolve[String]("aString") == aString)
     }
 
     it("should register and resolve int 123 with String identifier") {
-      Container.register("aNumber").toValue(aNumber).inTransientScope.done()
+      Container.register("aNumber").toValue(aNumber).inTransientScope()
       assert(Container.resolve[Int]("aNumber") == aNumber)
     }
 
@@ -32,7 +32,7 @@ trait DynamicRegistryTest extends AnyFunSpec {
     }
 
     it("should register in transient scope") {
-      Container.register[Foo].toSelf.inTransientScope.done()
+      Container.register[Foo].toSelf.inTransientScope()
       val foo1 = Container.resolve[Foo]
       val foo2 = Container.resolve[Foo]
       assert(foo1 != foo)
@@ -40,14 +40,14 @@ trait DynamicRegistryTest extends AnyFunSpec {
     }
 
     it("should register a object") {
-      Container.register[Baz.type].toSelf.inSingletonScope.done()
+      Container.register[Baz.type].toSelf.inSingletonScope()
       assert(Container.has[Baz.type])
       assert(Container.resolve[Baz.type].isInstanceOf[Baz.type])
       assert(Container.resolve[Baz.type].x == Baz.x)
     }
 
     it("should register in singleton scope") {
-      Container.register[Foo].toSelf.inSingletonScope.done()
+      Container.register[Foo].toSelf.inSingletonScope()
       val foo1 = Container.resolve[Foo]
       val foo2 = Container.resolve[Foo]
       assert(foo1 != foo)
@@ -64,7 +64,7 @@ trait DynamicRegistryTest extends AnyFunSpec {
           case Nil => result
         }
         wrapper(seq, 0)
-      }.inSingletonScope.done()
+      }.inSingletonScope()
 
       assert(Container.has(identifier))
       assert(Container.resolve[List[Int] => Int](identifier).isInstanceOf[List[Int] => Int])
@@ -72,24 +72,24 @@ trait DynamicRegistryTest extends AnyFunSpec {
     }
 
     it("should register a main constructor") {
-      Container.register[Qux].toConstructor(classOf[Foo]).inTransientScope.done()
+      Container.register[Qux].toConstructor(classOf[Foo]).inTransientScope()
       val qux = Container.resolve[Qux]
       assert(qux.isInstanceOf[Qux])
       assert(qux.foo == Container.resolve[Foo])
     }
 
     it("should register an auxiliary constructor") {
-      Container.register[Quux].toConstructor(classOf[Foo]).inTransientScope.done()
+      Container.register[Quux].toConstructor(classOf[Foo]).inTransientScope()
       val quux = Container.resolve[Quux]
       assert(quux.isInstanceOf[Quux])
       assert(quux.x == Container.resolve[Foo].x)
     }
 
     it("should register a factory") {
-      Container.register[Int]("Bar.x").toValue(barX).inSingletonScope.done()
-      Container.register[Int]("Bar.y").toValue(barY).inSingletonScope.done()
+      Container.register[Int]("Bar.x").toValue(barX).inSingletonScope()
+      Container.register[Int]("Bar.y").toValue(barY).inSingletonScope()
 
-      Container.register[Bar].toFactory(factory).inTransientScope.done()
+      Container.register[Bar].toFactory(factory).inTransientScope()
       assert(Container.has[Bar])
       assert(Container.resolve[Bar].isInstanceOf[Bar])
 
@@ -99,8 +99,8 @@ trait DynamicRegistryTest extends AnyFunSpec {
 
     it("should register a service") {
       val identifier = "ANOTHER_FOO"
-      Container.register[Foo].toSelf.inTransientScope.done()
-      Container.register(identifier).toService[Foo].done()
+      Container.register[Foo].toSelf.inTransientScope()
+      Container.register(identifier).toService[Foo]
 
       assert(Container.has(identifier))
       assert(Container.resolve[Foo](identifier).isInstanceOf[Foo])
@@ -108,18 +108,18 @@ trait DynamicRegistryTest extends AnyFunSpec {
     }
 
     it("should be able to update registry in transient scope") {
-      Container.register("abc").toValue(0).inTransientScope.done()
-      Container.register("abc").toValue(1).inTransientScope.done()
+      Container.register("abc").toValue(0).inTransientScope()
+      Container.register("abc").toValue(1).inTransientScope()
       assert(Container.resolve[Int]("abc") == 1)
-      Container.register("abc").toValue(2).inTransientScope.done()
+      Container.register("abc").toValue(2).inTransientScope()
       assert(Container.resolve[Int]("abc") == 2)
     }
 
     it("should be able to update registry in singleton scope") {
-      Container.register("abc").toValue(0).inSingletonScope.done()
-      Container.register("abc").toValue(1).inSingletonScope.done()
+      Container.register("abc").toValue(0).inSingletonScope()
+      Container.register("abc").toValue(1).inSingletonScope()
       assert(Container.resolve[Int]("abc") == 1)
-      Container.register("abc").toValue(2).inSingletonScope.done()
+      Container.register("abc").toValue(2).inSingletonScope()
       assert(Container.resolve[Int]("abc") == 2)
     }
 

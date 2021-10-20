@@ -6,8 +6,8 @@ import space.controlnet.lightioc.enumerate.{ ConstructorEntry, Entry, FactoryEnt
 private sealed abstract class ScopeSetter[T](val identifier: Identifier)
 
 private sealed trait ScopeSettable {
-  def inSingletonScope: EntryBuildable[_]
-  def inTransientScope: EntryBuildable[_]
+  def inSingletonScope(): Container.type
+  def inTransientScope(): Container.type
 }
 
 private sealed trait HasScope {
@@ -64,18 +64,18 @@ private sealed trait FactoryEntryBuildable[T] extends EntryBuildable[T] {
 }
 
 private[lightioc] sealed class ValueScopeSetter[T](identifier: Identifier, val value: () => T) extends ScopeSetter[T](identifier) with ScopeSettable with ValueEntryHasValue[T] {
-  override def inSingletonScope: ValueScopeSetter[T] with SingletonScope with ValueEntryBuildable[T] = new ValueScopeSetter[T](identifier, value) with SingletonScope with ValueEntryBuildable[T]
-  override def inTransientScope: ValueScopeSetter[T] with TransientScope with ValueEntryBuildable[T] = new ValueScopeSetter[T](identifier, value) with TransientScope with ValueEntryBuildable[T]
+  override def inSingletonScope(): Container.type = new ValueScopeSetter[T](identifier, value) with SingletonScope with ValueEntryBuildable[T].done()
+  override def inTransientScope(): Container.type = new ValueScopeSetter[T](identifier, value) with TransientScope with ValueEntryBuildable[T].done()
 }
 
 private[lightioc] sealed class ConstructorScopeSetter[T](identifier: Identifier, val value: Seq[Identifier]) extends ScopeSetter[T](identifier) with ScopeSettable with ConstructorEntryHasValue[T] {
-  override def inSingletonScope: ConstructorScopeSetter[T] with SingletonScope with ConstructorEntryBuildable[T] = new ConstructorScopeSetter[T](identifier, value) with SingletonScope with ConstructorEntryBuildable[T]
-  override def inTransientScope: ConstructorScopeSetter[T] with TransientScope with ConstructorEntryBuildable[T] = new ConstructorScopeSetter[T](identifier, value) with TransientScope with ConstructorEntryBuildable[T]
+  override def inSingletonScope(): Container.type = new ConstructorScopeSetter[T](identifier, value) with SingletonScope with ConstructorEntryBuildable[T].done()
+  override def inTransientScope(): Container.type = new ConstructorScopeSetter[T](identifier, value) with TransientScope with ConstructorEntryBuildable[T].done()
 }
 
 private[lightioc] sealed class FactoryScopeSetter[T](identifier: Identifier, val value: Factory[T]) extends ScopeSetter[T](identifier) with ScopeSettable with FactoryEntryHasValue[T] {
-  override def inSingletonScope: FactoryScopeSetter[T] with SingletonScope with FactoryEntryBuildable[T] = new FactoryScopeSetter[T](identifier, value) with SingletonScope with FactoryEntryBuildable[T]
-  override def inTransientScope: FactoryScopeSetter[T] with TransientScope with FactoryEntryBuildable[T] = new FactoryScopeSetter[T](identifier, value) with TransientScope with FactoryEntryBuildable[T]
+  override def inSingletonScope(): Container.type = new FactoryScopeSetter[T](identifier, value) with SingletonScope with FactoryEntryBuildable[T].done()
+  override def inTransientScope(): Container.type = new FactoryScopeSetter[T](identifier, value) with TransientScope with FactoryEntryBuildable[T].done()
 }
 
 private[lightioc] final class ServiceScopeSetter[T, R](identifier: Identifier, val targetIdentifier: Identifier) extends ScopeSetter[T](identifier) with EntryBuildable[T] {

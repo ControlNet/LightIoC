@@ -9,15 +9,15 @@ trait AutowiredTest extends AnyFunSpec {
   describe("Autowired test ::") {
 
     it("should autowired string identifier fields") {
-      Container.register[Int]("Bar.num").toValue(intValue).inSingletonScope.done()
-      Container.register[Boolean]("Baz.bool").toValue(boolValue).inSingletonScope.done()
-      Container.register[Qux].toSelf.inTransientScope.done()
+      Container.register[Int]("Bar.num").toValue(intValue).inSingletonScope()
+      Container.register[Boolean]("Baz.bool").toValue(boolValue).inSingletonScope()
+      Container.register[Qux].toSelf.inTransientScope()
       assert(Container.resolve[Bar].num == intValue)
       assert(Container.resolve[Baz.type].bool == boolValue)
     }
 
     it("should autowired fields in class") {
-      Container.register[String]("Foo.str").toValue(strValue).inSingletonScope.done()
+      Container.register[String]("Foo.str").toValue(strValue).inSingletonScope()
       assert(Container.resolve[Foo].bar.isInstanceOf[Bar])
       assert(Container.resolve[Foo].baz.isInstanceOf[Baz.type])
       assert(Container.resolve[Foo].baz == Baz)
@@ -35,7 +35,7 @@ trait AutowiredTest extends AnyFunSpec {
     }
 
     it("should autowired fields in trail") {
-      Container.register[Int]("IQuux.num").toValue(intValue).inSingletonScope.done()
+      Container.register[Int]("IQuux.num").toValue(intValue).inSingletonScope()
       assert(Container.resolve[Quux].num == intValue)
     }
   }
