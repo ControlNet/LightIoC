@@ -1,8 +1,7 @@
-package space.controlnet.lightioc;
+package space.controlnet.lightioc.api;
 
 import org.junit.jupiter.api.Test;
 import space.controlnet.lightioc.annotation.Provider;
-import space.controlnet.lightioc.api.Container;
 
 import static org.junit.jupiter.api.Assertions.*;
 

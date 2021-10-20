@@ -16,22 +16,39 @@ lazy val scala211 = "2.11.12"
 lazy val scala212 = "2.12.14"
 lazy val scala213 = "2.13.5"
 
-lazy val base = project.in(file("."))
-  .settings(sonatypeCredentialHost := "s01.oss.sonatype.org")
-  .settings(sonatypeRepository := "https://s01.oss.sonatype.org/service/local")
-  .settings(parallelExecution := false)
-  .settings(fork := false)
-  .settings(crossScalaVersions := List(scala213, scala212, scala211))
-  .settings(scalaVersion := scala213)
+lazy val core = (project in file("."))
+  .settings(
+    sonatypeCredentialHost := "s01.oss.sonatype.org",
+    sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
+    exportJars := true,
+    parallelExecution := false,
+    fork := false,
+    crossScalaVersions := List(scala211, scala212, scala213),
+    libraryDependencies ++= Seq(
+      "com.google.guava" % "guava" % "21.0",
+      "org.scalatest" %% "scalatest" % "3.2.9" % Test
+    )
+  )
+
+lazy val api = project
+  .dependsOn(core)
+  .settings(
+    sonatypeCredentialHost := "s01.oss.sonatype.org",
+    sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
+    autoScalaLibrary := false,
+    parallelExecution := false,
+    fork := false,
+    crossScalaVersions := List(scala212, scala213),
+    libraryDependencies ++= Seq(
+      "org.junit.jupiter" % "junit-jupiter" % "5.7.2" % Test,
+      "net.aichler" % "jupiter-interface" % "0.9.0" % Test
+    )
+  )
 
 
 name := "LightIoC"
 
+ThisBuild / scalaVersion := scala213
 ThisBuild / scalacOptions += "-target:jvm-1.8"
-
-ThisBuild / libraryDependencies += "com.google.guava" % "guava" % "21.0"
-ThisBuild / libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % Test
-ThisBuild / libraryDependencies += "org.junit.jupiter" % "junit-jupiter" % "5.7.2" % Test
-ThisBuild / libraryDependencies += "net.aichler" % "jupiter-interface" % "0.9.1" % Test
 
 Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a"))
