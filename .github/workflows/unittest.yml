@@ -20,5 +20,8 @@ jobs:
         with:
           java-version: "adopt@1.${{ matrix.java }}"
       - name: Build and Test
-        run: sbt -v -Dfile.encoding=UTF-8 "++${{ matrix.scala }}" "test"
+        run: sbt -v -Dfile.encoding=UTF-8 "++${{ matrix.scala }} test"
         shell: bash
+      - name: Test API
+        if: ${{ matrix.scala != '2.11.12' }}
+        run: sbt -v -Dfile.encoding=UTF-8 "++${{ matrix.scala }}; project api; test"

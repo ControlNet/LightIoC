@@ -18,6 +18,7 @@ lazy val scala213 = "2.13.5"
 
 lazy val core = (project in file("."))
   .settings(
+    name := "LightIoC",
     sonatypeCredentialHost := "s01.oss.sonatype.org",
     sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
     exportJars := true,
@@ -33,6 +34,7 @@ lazy val core = (project in file("."))
 lazy val api = project
   .dependsOn(core)
   .settings(
+    name := "LightIoC API",
     sonatypeCredentialHost := "s01.oss.sonatype.org",
     sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
     autoScalaLibrary := false,
@@ -44,9 +46,6 @@ lazy val api = project
       "net.aichler" % "jupiter-interface" % "0.9.0" % Test
     )
   )
-
-
-name := "LightIoC"
 
 ThisBuild / scalaVersion := scala213
 ThisBuild / scalacOptions += "-target:jvm-1.8"
