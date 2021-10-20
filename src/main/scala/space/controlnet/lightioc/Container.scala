@@ -9,7 +9,7 @@ import scala.collection.mutable
 import scala.reflect.ClassTag
 
 object Container extends StaticRegister with AutoWirer {
-  val mappings: mutable.Map[Identifier, Entry[_]] = new mutable.HashMap[Identifier, Entry[_]] // TODO modifier
+  private val mappings: mutable.Map[Identifier, Entry[_]] = new mutable.HashMap[Identifier, Entry[_]]
   private val singletons: mutable.Map[Identifier, Any] = new mutable.HashMap[Identifier, Any]
 
   /**
@@ -143,7 +143,7 @@ object Container extends StaticRegister with AutoWirer {
   /**
    * Checking if the type is in Container
    */
-  def has[T: ClassTag](implicit tag: ClassTag[T]): Boolean =
+  def has[T](implicit tag: ClassTag[T]): Boolean =
     if (!allStringId) has(tag.runtimeClass)
     else has(tag.runtimeClass.getName)
 

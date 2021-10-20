@@ -60,21 +60,21 @@ private[lightioc] class BindingSetter[T](identifier: Identifier) {
   /**
    * Register to another registration
    */
-  def toService[R](targetIdentifier: Identifier): ServiceScopeSetter[T, R] =
-    new ServiceScopeSetter[T, R](identifier, Container.checkAndConvert(targetIdentifier))
+  def toService[R](targetIdentifier: Identifier): Container.type =
+    new ServiceScopeSetter[T, R](identifier, Container.checkAndConvert(targetIdentifier)).done()
   /**
    * Register to another registration by type
    */
-  def toService[R](implicit tag: ClassTag[R]): ServiceScopeSetter[T, R] = toService[R](tag.runtimeClass)
+  def toService[R](implicit tag: ClassTag[R]): Container.type = toService[R](tag.runtimeClass)
 
   /**
    *  Register a constructor or a value to Container in Transient scope
    */
   def ->[R <: T] : PartialFunction[Any, Container.type] = {
-    case Self => toSelf.inTransientScope.done()
-    case New(types@_*) => toConstructor(types: _*).inTransientScope.done()
-    case cls : Class[R] => to[R](cls).inTransientScope.done()
-    case value : T => toValue(value).inTransientScope.done()
+    case Self => toSelf.inTransientScope()
+    case New(types@_*) => toConstructor(types: _*).inTransientScope()
+    case cls : Class[R] => to[R](cls).inTransientScope()
+    case value : T => toValue(value).inTransientScope()
     case other => throw RegistryTypeException(s"Wrong registry type, get: $other")
   }
 
@@ -82,22 +82,22 @@ private[lightioc] class BindingSetter[T](identifier: Identifier) {
    * Register a constructor or a value to Container in Singleton scope
    */
   def :=[R <: T] : PartialFunction[Any, Container.type] = {
-    case Self => toSelf.inSingletonScope.done()
-    case New(types@_*) => toConstructor(types: _*).inSingletonScope.done()
-    case cls : Class[R] => to[R](cls).inSingletonScope.done()
-    case value : T => toValue(value).inSingletonScope.done()
+    case Self => toSelf.inSingletonScope()
+    case New(types@_*) => toConstructor(types: _*).inSingletonScope()
+    case cls : Class[R] => to[R](cls).inSingletonScope()
+    case value : T => toValue(value).inSingletonScope()
     case other => throw RegistryTypeException(s"Wrong registry type, get: $other")
   }
 
   /**
    * Register a factory to Container.
    */
-  def ~> (function: Factory[T]): Container.type = new FactoryScopeSetter(identifier, function).inTransientScope.done()
+  def ~> (function: Factory[T]): Container.type = new FactoryScopeSetter(identifier, function).inTransientScope()
 
   /**
    * Register to another service.
    */
-  def >> [R](targetIdentifier: Identifier): Container.type = toService[R](targetIdentifier).done()
+  def >> [R](targetIdentifier: Identifier): Container.type = toService[R](targetIdentifier)
 }
 
 object BindingSetter {

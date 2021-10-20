@@ -31,3 +31,7 @@ ThisBuild / scalacOptions += "-target:jvm-1.8"
 
 ThisBuild / libraryDependencies += "com.google.guava" % "guava" % "21.0"
 ThisBuild / libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % Test
+ThisBuild / libraryDependencies += "org.junit.jupiter" % "junit-jupiter" % "5.7.2" % Test
+ThisBuild / libraryDependencies += "net.aichler" % "jupiter-interface" % "0.9.1" % Test
+
+Test / testOptions := Seq(Tests.Argument(TestFrameworks.JUnit, "-a"))

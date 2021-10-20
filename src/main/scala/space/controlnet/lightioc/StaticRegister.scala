@@ -60,8 +60,8 @@ protected trait StaticRegister {
       case (cls, annotation: Annotation, classId: Class[Any], NULL) => (Container.register(classId).to(cls), annotation)
       case (cls, annotation: Annotation, _: Class[_], stringId: String) => (Container.register(stringId).to(cls), annotation)
     }.foreach {
-      case (scopeSetter, _: Provider) => scopeSetter.inTransientScope.done()
-      case (scopeSetter, _: Singleton) => scopeSetter.inSingletonScope.done()
+      case (scopeSetter, _: Provider) => scopeSetter.inTransientScope()
+      case (scopeSetter, _: Singleton) => scopeSetter.inSingletonScope()
     }
   }
 }
