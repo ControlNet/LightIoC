@@ -14,7 +14,7 @@ inThisBuild(List(
 
 lazy val scala211 = "2.11.12"
 lazy val scala212 = "2.12.14"
-lazy val scala213 = "2.13.5"
+lazy val scala213 = "2.13.8"
 
 lazy val core = (project in file("."))
   .settings(
@@ -26,8 +26,8 @@ lazy val core = (project in file("."))
     fork := false,
     crossScalaVersions := List(scala211, scala212, scala213),
     libraryDependencies ++= Seq(
-      "com.google.guava" % "guava" % "21.0",
-      "org.scalatest" %% "scalatest" % "3.2.9" % Test
+      "com.google.guava" % "guava" % "[21.0, 23.0]",
+      "org.scalatest" %% "scalatest" % "3.2.+" % Test
     )
   )
 
