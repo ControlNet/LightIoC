@@ -11,13 +11,13 @@ libraryDependencies += "space.controlnet" %% "lightioc" % "0.3.0"
 
 Gradle: 
 ```groovy
-implementation group: "space.controlnet", name: "lightioc_<scala_version>", version: "0.3.0"
+implementation group: "space.controlnet", name: "lightioc_<scala_version>", version: "0.3.1"
 ```
 
 A Java-friendly API compiled by Scala 2.13 and 2.12 is also provided. See [Java-Friendly API](#java-friendly-api).
 Gradle:
 ```groovy
-implementation group: "space.controlnet", name: "lightioc-api_2.13", version: "0.3.0"
+implementation group: "space.controlnet", name: "lightioc-api_2.13", version: "0.3.1"
 ```
 
 ## Quick start
