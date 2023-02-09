@@ -40,7 +40,6 @@ lazy val api = project
     autoScalaLibrary := false,
     parallelExecution := false,
     fork := false,
-    crossScalaVersions := List(scala212, scala213),
     libraryDependencies ++= Seq(
       "org.junit.jupiter" % "junit-jupiter" % "5.7.2" % Test,
       "net.aichler" % "jupiter-interface" % "0.9.0" % Test
