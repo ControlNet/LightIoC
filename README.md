@@ -22,7 +22,7 @@ This library is complied for Scala 2.13.x, 2.12.x, 2.11.x, and also tested in Ja
 
 SBT:
 ```scala
-libraryDependencies += "space.controlnet" %% "lightioc" % "0.3.0"
+libraryDependencies += "space.controlnet" %% "lightioc" % "0.3.1"
 ```
 
 Gradle: 
