@@ -39,6 +39,8 @@ lazy val api = project
     sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
     autoScalaLibrary := false,
     parallelExecution := false,
+    crossScalaVersions := List(scala213),
+    crossPaths := false,
     fork := false,
     libraryDependencies ++= Seq(
       "org.junit.jupiter" % "junit-jupiter" % "5.7.2" % Test,
