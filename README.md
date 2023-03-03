@@ -174,7 +174,7 @@ object Baz {
 
 Gradle:
 ```groovy
-implementation group: "space.controlnet", name: "lightioc-api_2.13", version: "0.3.1"
+implementation group: "space.controlnet", name: "lightioc-api", version: "0.3.2"
 ```
 
 ### Kotlin Example

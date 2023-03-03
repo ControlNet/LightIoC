@@ -23,5 +23,5 @@ jobs:
         run: sbt -v -Dfile.encoding=UTF-8 "++${{ matrix.scala }} test"
         shell: bash
       - name: Test API
-        if: ${{ matrix.scala != '2.11.12' }}
+        if: ${{ matrix.scala == '2.13.5' }}
         run: sbt -v -Dfile.encoding=UTF-8 "++${{ matrix.scala }}; project api; test"
